@@ -1,0 +1,9 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "buildCommand": "echo 'mockup-sandbox is a dev-only tool, not a deployable service'"
+  },
+  "deploy": {
+    "startCommand": "node -e \"setInterval(()=>{},3600000)\""
+  }
+}

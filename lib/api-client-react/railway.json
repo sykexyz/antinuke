@@ -1,0 +1,9 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "buildCommand": "echo 'api-client-react is a library, not a deployable service'"
+  },
+  "deploy": {
+    "startCommand": "node -e \"setInterval(()=>{},3600000)\""
+  }
+}

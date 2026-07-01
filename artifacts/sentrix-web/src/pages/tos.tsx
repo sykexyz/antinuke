@@ -1,46 +1,69 @@
 import React from 'react';
 
+const SECTIONS = [
+  {
+    title: '1. Acceptance of Terms',
+    body: 'By adding Sentrix to your Discord server, you agree to these Terms of Service. If you disagree with any part, remove the bot from your server.',
+  },
+  {
+    title: '2. Allowed Use',
+    body: null,
+    list: [
+      "Don't use Sentrix to violate Discord's Terms of Service or Community Guidelines.",
+      "Don't attempt to exploit, bypass, or reverse-engineer any bot features.",
+      "Don't use the bot to harm, raid, or attack other Discord servers.",
+      "Don't spam commands or deliberately trigger rate limits.",
+    ],
+  },
+  {
+    title: '3. Data and Privacy',
+    body: 'Sentrix only stores data needed to function — server config, user IDs for moderation and leveling, and economy balances. We do not sell or share your data. See the Privacy Policy for full details.',
+  },
+  {
+    title: '4. Availability',
+    body: 'We aim for high uptime but do not guarantee uninterrupted access. The bot may go offline for maintenance or updates without prior notice.',
+  },
+  {
+    title: '5. Termination',
+    body: 'We may remove access to Sentrix at any time if these terms or Discord\'s guidelines are violated.',
+  },
+];
+
 export default function TOS() {
   return (
-    <div className="pt-32 pb-20 px-4 max-w-4xl mx-auto w-full">
-      <h1 className="text-4xl md:text-6xl font-pixel text-gradient mb-12">TERMS OF SERVICE</h1>
-      
-      <div className="glass-panel p-8 md:p-12 relative overflow-hidden text-gray-300 font-mono space-y-8">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[50px] rounded-full" />
-        
-        <p className="text-sm text-primary mb-8 border-l-2 border-primary pl-4">Last Updated: October 2024</p>
-        
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">1. Acceptance of Terms</h2>
-          <p>By inviting Sentrix Bot to your Discord server, you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must immediately kick the bot from all your servers.</p>
-        </section>
+    <div className="pt-32 pb-24 px-4 max-w-3xl mx-auto w-full">
 
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">2. Bot Usage and Restrictions</h2>
-          <p className="mb-2">You agree NOT to use Sentrix for any of the following:</p>
-          <ul className="list-disc list-inside pl-4 space-y-2 text-gray-400">
-            <li>Violating Discord's Terms of Service or Community Guidelines.</li>
-            <li>Attempting to bypass, exploit, or reverse-engineer the bot's security features.</li>
-            <li>Using the bot to facilitate malicious attacks, raiding, or nuking of other servers.</li>
-            <li>Spamming bot commands or intentionally attempting to cause rate limits.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">3. Data Collection and Privacy</h2>
-          <p>We take data privacy seriously. Sentrix only stores the minimum amount of data required to function effectively. Please refer to our Privacy Policy for detailed information on what data we collect and how it is protected.</p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">4. Service Availability</h2>
-          <p>We strive to maintain 99.9% uptime. However, we do not guarantee continuous, uninterrupted access to the bot. We reserve the right to temporarily suspend service for maintenance, updates, or in response to security threats without prior notice.</p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">5. Termination</h2>
-          <p>We reserve the right to terminate or suspend your access to Sentrix Bot at any time, for any reason, including but not limited to violations of these Terms of Service or Discord's Terms of Service.</p>
-        </section>
+      <div className="mb-12">
+        <h1
+          className="text-3xl md:text-4xl font-pixel text-gradient mb-4"
+          style={{ fontFamily: "'Press Start 2P', cursive" }}
+        >
+          Terms of Service
+        </h1>
+        <p className="text-sm text-muted-foreground">Last updated: October 2024</p>
       </div>
+
+      <div className="space-y-5">
+        {SECTIONS.map((s) => (
+          <div key={s.title} className="pixel-card rounded-xl p-6 md:p-8">
+            <h2 className="font-semibold text-foreground mb-3 text-sm">{s.title}</h2>
+            {s.body && (
+              <p className="text-sm text-muted-foreground leading-relaxed">{s.body}</p>
+            )}
+            {s.list && (
+              <ul className="space-y-2 mt-1">
+                {s.list.map((item, i) => (
+                  <li key={i} className="flex gap-3 text-sm text-muted-foreground">
+                    <span className="text-primary mt-0.5 flex-shrink-0">•</span>
+                    <span className="leading-relaxed">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 }

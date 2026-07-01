@@ -4,86 +4,114 @@ import { Menu, X } from 'lucide-react';
 
 const INVITE_LINK = "https://discord.com/oauth2/authorize?client_id=1521797977478271056";
 
+const NAV_LINKS = [
+  { href: '/about',     label: 'About'    },
+  { href: '/commands',  label: 'Commands' },
+  { href: '/status',    label: 'Status'   },
+  { href: '/developer', label: 'Developer'},
+];
+
 export function Navbar() {
   const [location] = useLocation();
   const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const navLinks = [
-    { href: '/', label: 'HOME' },
-    { href: '/about', label: 'ABOUT' },
-    { href: '/developer', label: 'DEVELOPER' },
-    { href: '/commands', label: 'COMMANDS' },
-    { href: '/status', label: 'STATUS' },
-  ];
-
   return (
-    <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'py-2 bg-[#050f05]/80 backdrop-blur-md border-b border-primary/20' : 'py-4 bg-transparent'}`}>
+    <header
+      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+        scrolled
+          ? 'py-2 bg-[hsl(240_28%_9%/0.9)] backdrop-blur-xl border-b border-[hsl(239_84%_73%/0.12)]'
+          : 'py-4 bg-transparent'
+      }`}
+    >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-8 h-8 relative flex items-center justify-center">
-            <div className="absolute inset-0 border-2 border-primary rounded-sm transform rotate-45 group-hover:rotate-90 transition-transform duration-500" />
-            <div className="w-3 h-3 bg-primary rounded-sm" />
-          </div>
-          <span className="font-pixel text-xl tracking-tighter text-white group-hover:text-primary transition-colors">SENTRIX</span>
+        <Link href="/" className="flex items-center gap-3 group select-none">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <rect x="12" y="0"  width="4"  height="4"  fill="#818cf8" />
+            <rect x="8"  y="4"  width="4"  height="4"  fill="#c084fc" />
+            <rect x="16" y="4"  width="4"  height="4"  fill="#c084fc" />
+            <rect x="4"  y="8"  width="4"  height="4"  fill="#818cf8" />
+            <rect x="12" y="8"  width="4"  height="4"  fill="#fbbf24" />
+            <rect x="20" y="8"  width="4"  height="4"  fill="#818cf8" />
+            <rect x="4"  y="12" width="4"  height="4"  fill="#4ade80" />
+            <rect x="8"  y="12" width="4"  height="4"  fill="#818cf8" />
+            <rect x="16" y="12" width="4"  height="4"  fill="#818cf8" />
+            <rect x="20" y="12" width="4"  height="4"  fill="#4ade80" />
+            <rect x="8"  y="16" width="4"  height="4"  fill="#f472b6" />
+            <rect x="12" y="16" width="4"  height="4"  fill="#f472b6" />
+            <rect x="16" y="16" width="4"  height="4"  fill="#f472b6" />
+            <rect x="12" y="20" width="4"  height="4"  fill="#c084fc" />
+          </svg>
+          <span
+            className="font-pixel text-[13px] tracking-tight text-white group-hover:text-primary transition-colors duration-200"
+            style={{ fontFamily: "'Press Start 2P', cursive" }}
+          >
+            SENTRIX
+          </span>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navLinks.filter(l => l.href !== '/').map((link) => (
-            <Link 
-              key={link.href} 
+        <nav className="hidden md:flex items-center gap-7">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
               href={link.href}
-              className={`text-sm font-bold tracking-widest transition-all ${location === link.href ? 'text-primary drop-shadow-[0_0_8px_rgba(0,255,65,0.8)]' : 'text-gray-400 hover:text-white'}`}
+              className={`text-sm font-medium transition-colors duration-200 ${
+                location === link.href
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
             >
               {link.label}
             </Link>
           ))}
-          <a 
-            href={INVITE_LINK} 
-            target="_blank" 
+          <a
+            href={INVITE_LINK}
+            target="_blank"
             rel="noreferrer"
-            className="ml-4 px-6 py-2 bg-primary/10 border border-primary text-primary font-bold text-sm tracking-widest hover:bg-primary hover:text-black transition-all neon-box-shadow"
+            className="ml-2 px-5 py-2 rounded-md pixel-btn-primary text-sm font-semibold"
           >
-            ADD TO SERVER
+            Add to Server
           </a>
         </nav>
 
-        {/* Mobile Menu Toggle */}
-        <button 
-          className="md:hidden text-primary p-2"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        <button
+          className="md:hidden text-muted-foreground hover:text-foreground p-2 transition-colors"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {open ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* Mobile Nav Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-[#050f05]/95 backdrop-blur-xl border-b border-primary/20 flex flex-col p-4 gap-4 animate-in slide-in-from-top-2">
-          {navLinks.map((link) => (
-            <Link 
-              key={link.href} 
+      {open && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-[hsl(240_35%_10%/0.97)] backdrop-blur-xl border-b border-[hsl(239_84%_73%/0.12)] flex flex-col p-4 gap-1">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
               href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={`text-sm font-bold tracking-widest p-2 ${location === link.href ? 'text-primary bg-primary/10' : 'text-gray-400'}`}
+              onClick={() => setOpen(false)}
+              className={`text-sm font-medium px-3 py-2.5 rounded-md transition-colors ${
+                location === link.href
+                  ? 'text-primary bg-[hsl(239_84%_73%/0.1)]'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-[hsl(239_84%_73%/0.05)]'
+              }`}
             >
               {link.label}
             </Link>
           ))}
-          <a 
-            href={INVITE_LINK} 
-            target="_blank" 
+          <a
+            href={INVITE_LINK}
+            target="_blank"
             rel="noreferrer"
-            className="text-center mt-4 px-6 py-3 bg-primary text-black font-bold text-sm tracking-widest"
+            className="mt-3 text-center px-5 py-2.5 rounded-md pixel-btn-primary text-sm font-semibold"
           >
-            ADD TO SERVER
+            Add to Server
           </a>
         </div>
       )}

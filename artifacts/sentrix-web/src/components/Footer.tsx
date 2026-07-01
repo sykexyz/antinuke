@@ -3,51 +3,70 @@ import { Link } from 'wouter';
 
 export function Footer() {
   return (
-    <footer className="w-full border-t border-primary/20 bg-[#050f05]/50 backdrop-blur-sm mt-20">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1 md:col-span-2">
-            <Link href="/" className="flex items-center gap-3 group mb-4">
-              <div className="w-6 h-6 relative flex items-center justify-center">
-                <div className="absolute inset-0 border border-primary rounded-sm transform rotate-45" />
-                <div className="w-2 h-2 bg-primary rounded-sm" />
-              </div>
-              <span className="font-pixel text-lg text-white">SENTRIX</span>
+    <footer className="w-full border-t border-[hsl(239_84%_73%/0.1)] bg-[hsl(240_35%_8%/0.6)] backdrop-blur-sm mt-24">
+      <div className="container mx-auto px-4 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div>
+            <Link href="/" className="flex items-center gap-3 group mb-4 w-fit select-none">
+              <svg width="22" height="22" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                <rect x="12" y="0"  width="4" height="4" fill="#818cf8" />
+                <rect x="8"  y="4"  width="4" height="4" fill="#c084fc" />
+                <rect x="16" y="4"  width="4" height="4" fill="#c084fc" />
+                <rect x="12" y="8"  width="4" height="4" fill="#fbbf24" />
+                <rect x="8"  y="16" width="4" height="4" fill="#f472b6" />
+                <rect x="12" y="16" width="4" height="4" fill="#f472b6" />
+                <rect x="16" y="16" width="4" height="4" fill="#f472b6" />
+                <rect x="12" y="20" width="4" height="4" fill="#c084fc" />
+              </svg>
+              <span
+                className="font-pixel text-xs text-white group-hover:text-primary transition-colors"
+                style={{ fontFamily: "'Press Start 2P', cursive" }}
+              >
+                SENTRIX
+              </span>
             </Link>
-            <p className="text-gray-400 text-sm max-w-sm mb-6">
-              Military-grade Discord moderation and utility system.
-              Protect your server with next-generation anti-nuke technology.
+            <p className="text-sm text-muted-foreground max-w-xs leading-relaxed">
+              A Discord bot that keeps your server safe, active, and fun — all in one place.
             </p>
           </div>
-          
+
           <div>
-            <h4 className="font-pixel text-xs text-primary mb-4">Links</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/about" className="hover:text-primary transition-colors">About</Link></li>
-              <li><Link href="/commands" className="hover:text-primary transition-colors">Commands</Link></li>
-              <li><Link href="/status" className="hover:text-primary transition-colors">Status</Link></li>
-              <li><a href="https://discord.com/oauth2/authorize?client_id=1521797977478271056" target="_blank" rel="noreferrer" className="hover:text-primary transition-colors">Add Bot</a></li>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Pages</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link href="/about"     className="text-muted-foreground hover:text-foreground transition-colors">About</Link></li>
+              <li><Link href="/commands"  className="text-muted-foreground hover:text-foreground transition-colors">Commands</Link></li>
+              <li><Link href="/status"    className="text-muted-foreground hover:text-foreground transition-colors">Status</Link></li>
+              <li><Link href="/developer" className="text-muted-foreground hover:text-foreground transition-colors">Developer</Link></li>
+              <li>
+                <a
+                  href="https://discord.com/oauth2/authorize?client_id=1521797977478271056"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Add to Server
+                </a>
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-pixel text-xs text-primary mb-4">Legal</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
-              <li><Link href="/tos" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/developer" className="hover:text-primary transition-colors">Developer</Link></li>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-4">Legal</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link href="/tos"     className="text-muted-foreground hover:text-foreground transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>
-        
-        <div className="mt-12 pt-8 border-t border-primary/10 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-500 font-mono">
-            © {new Date().getFullYear()} Sentrix Bot. All rights reserved.
+
+        <div className="mt-12 pt-8 border-t border-[hsl(239_84%_73%/0.08)] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} Sentrix. All rights reserved.
           </p>
-          <div className="flex gap-2">
-            <div className="w-1 h-1 bg-primary rounded-full opacity-50" />
-            <div className="w-1 h-1 bg-primary rounded-full opacity-75" />
-            <div className="w-1 h-1 bg-primary rounded-full" />
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#4ade80] opacity-60" />
+            <div className="w-1.5 h-1.5 rounded-full bg-[#818cf8] opacity-80" />
+            <div className="w-1.5 h-1.5 rounded-full bg-[#f472b6] opacity-60" />
           </div>
         </div>
       </div>

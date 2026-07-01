@@ -4,27 +4,25 @@ export function FloatingActionButton() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setVisible(window.scrollY > 300);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => setVisible(window.scrollY > 300);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   if (!visible) return null;
 
   return (
     <button
-      onClick={scrollToTop}
-      className="fixed bottom-6 right-6 w-12 h-12 bg-primary/20 backdrop-blur-md border border-primary text-primary rounded flex items-center justify-center hover:bg-primary hover:text-black transition-all z-50 neon-box-shadow"
-      aria-label="Scroll to top"
+      onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      className="fixed bottom-6 right-6 w-11 h-11 rounded-lg bg-[hsl(240_35%_14%)] border border-[hsl(239_84%_73%/0.25)] text-primary flex items-center justify-center hover:bg-[hsl(239_84%_73%/0.15)] hover:border-[hsl(239_84%_73%/0.5)] transition-all duration-200 z-50 shadow-lg"
+      aria-label="Back to top"
     >
-      <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="18 15 12 9 6 15"></polyline>
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+        <rect x="7"  y="0" width="2" height="10" />
+        <rect x="2"  y="4" width="2" height="2"  />
+        <rect x="4"  y="2" width="2" height="2"  />
+        <rect x="10" y="2" width="2" height="2"  />
+        <rect x="12" y="4" width="2" height="2"  />
       </svg>
     </button>
   );

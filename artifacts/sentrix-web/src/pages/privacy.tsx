@@ -1,44 +1,70 @@
 import React from 'react';
 
+const COLLECTED = [
+  { label: 'Server IDs & config',   desc: 'Stores your prefix settings, anti-nuke thresholds, and logging channels.' },
+  { label: 'User IDs',              desc: 'Used to track warnings, strikes, XP, levels, and economy balances.' },
+  { label: 'Message content',       desc: 'Scanned in real time for spam and links. Content is not stored unless it creates a moderation case.' },
+];
+
+const SECTIONS = [
+  {
+    title: 'How we use your data',
+    body: 'Data is used only to run Sentrix features. We do not sell, rent, or share data with third parties.',
+  },
+  {
+    title: 'Deleting your data',
+    body: "Removing Sentrix from your server marks your server's config for deletion in the next cleanup cycle. Individual users can request a full wipe of their economy and leveling data by contacting us.",
+  },
+  {
+    title: 'Security',
+    body: 'Stored data is encrypted at rest. Database access is restricted to core developers only.',
+  },
+];
+
 export default function Privacy() {
   return (
-    <div className="pt-32 pb-20 px-4 max-w-4xl mx-auto w-full">
-      <h1 className="text-4xl md:text-6xl font-pixel text-gradient mb-12">PRIVACY POLICY</h1>
-      
-      <div className="glass-panel p-8 md:p-12 relative overflow-hidden text-gray-300 font-mono space-y-8">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[50px] rounded-full" />
-        
-        <p className="text-sm text-primary mb-8 border-l-2 border-primary pl-4">Last Updated: October 2024</p>
-        
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">Data Minimization Principle</h2>
-          <p>Sentrix operates on a strict data minimization principle. We only collect, process, and store data that is absolutely necessary for the bot's core functions (anti-nuke, moderation, leveling, and economy).</p>
-        </section>
+    <div className="pt-32 pb-24 px-4 max-w-3xl mx-auto w-full">
 
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">What Data We Collect</h2>
-          <ul className="list-disc list-inside pl-4 space-y-2 text-gray-400">
-            <li><strong>Server IDs and Configuration:</strong> To store your custom prefix, anti-nuke thresholds, and logging channels.</li>
-            <li><strong>User IDs:</strong> To track warnings, strikes, leveling XP, and economy balances.</li>
-            <li><strong>Message Content (Ephemeral):</strong> Messages are scanned in real-time for anti-spam and malicious links, but the content is NOT stored permanently unless explicitly logged in a strike/warning context.</li>
-          </ul>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">How We Use Your Data</h2>
-          <p>Data is used exclusively to provide the services offered by Sentrix. We do not sell, rent, or share your data with third parties. Your data is your data.</p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">Data Deletion</h2>
-          <p>If you remove Sentrix from your server, your server's configuration data is marked for deletion and purged during our routine database sweeps. Individual users can request a full data wipe of their economy/leveling data by contacting support.</p>
-        </section>
-
-        <section>
-          <h2 className="text-xl font-bold text-white mb-4 uppercase">Security Measures</h2>
-          <p>All stored data is encrypted at rest. Our infrastructure is fortified against external access, and access to the production database is strictly limited to core developers.</p>
-        </section>
+      <div className="mb-12">
+        <h1
+          className="text-3xl md:text-4xl font-pixel text-gradient mb-4"
+          style={{ fontFamily: "'Press Start 2P', cursive" }}
+        >
+          Privacy Policy
+        </h1>
+        <p className="text-sm text-muted-foreground">Last updated: October 2024</p>
       </div>
+
+      <div className="pixel-card rounded-xl p-6 md:p-8 mb-5">
+        <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-primary pl-4">
+          Sentrix only collects what it needs. Nothing more.
+        </p>
+      </div>
+
+      <div className="pixel-card rounded-xl p-6 md:p-8 mb-5">
+        <h2 className="font-semibold text-foreground text-sm mb-5">What we collect</h2>
+        <div className="space-y-4">
+          {COLLECTED.map((item) => (
+            <div key={item.label} className="flex gap-4">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground mb-0.5">{item.label}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-5">
+        {SECTIONS.map((s) => (
+          <div key={s.title} className="pixel-card rounded-xl p-6 md:p-8">
+            <h2 className="font-semibold text-foreground text-sm mb-3">{s.title}</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">{s.body}</p>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 }

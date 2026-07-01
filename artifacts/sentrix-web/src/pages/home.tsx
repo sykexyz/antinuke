@@ -1,216 +1,262 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'wouter';
 import { useGetBotStats } from '@workspace/api-client-react';
 
-function AnimatedCounter({ end, duration = 2000 }: { end: number, duration?: number }) {
-  const [count, setCount] = React.useState(0);
+const INVITE_LINK = "https://discord.com/oauth2/authorize?client_id=1521797977478271056";
 
-  React.useEffect(() => {
-    let startTimestamp: number | null = null;
-    const step = (timestamp: number) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      setCount(Math.floor(progress * end));
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      }
+function AnimatedCounter({ end, duration = 1800 }: { end: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (end === 0) return;
+    let start: number | null = null;
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(ease * end));
+      if (progress < 1) requestAnimationFrame(step);
     };
-    window.requestAnimationFrame(step);
+    requestAnimationFrame(step);
   }, [end, duration]);
-
   return <span>{count.toLocaleString()}</span>;
 }
 
+const FEATURES = [
+  {
+    color: '#818cf8',
+    label: 'Anti-Nuke',
+    desc: 'Watches every action in your server — mass bans, channel deletions, webhook spam — and shuts it down before anyone notices.',
+    icon: (
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        <line x1="12" y1="8" x2="12" y2="13" />
+        <line x1="12" y1="16" x2="12" y2="16" strokeLinecap="round" strokeWidth="3" />
+      </svg>
+    ),
+  },
+  {
+    color: '#4ade80',
+    label: 'Moderation',
+    desc: 'Warn, mute, kick, ban — with full case history, auto-mod filters, and clean logs so nothing slips through.',
+    icon: (
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <line x1="9" y1="3" x2="9" y2="21" />
+        <line x1="3" y1="9" x2="21" y2="9" />
+      </svg>
+    ),
+  },
+  {
+    color: '#fbbf24',
+    label: 'Leveling & Economy',
+    desc: 'Give members XP for chatting, unlock roles as they level up, and run a server economy with coins, shops, and leaderboards.',
+    icon: (
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+        <polyline points="17 6 23 6 23 12" />
+      </svg>
+    ),
+  },
+  {
+    color: '#f472b6',
+    label: 'Tickets & Utility',
+    desc: 'Support tickets with full transcripts, reaction roles, welcome messages, giveaways, and everything your community runs on.',
+    icon: (
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    ),
+  },
+];
+
 export default function Home() {
-  const { data: stats, isLoading } = useGetBotStats();
-  
-  const botStats = stats || { servers: 1420, users: 45000, commands: 254, status: 'online' };
+  const { data: statsData, isLoading } = useGetBotStats();
+  const stats = statsData ?? { servers: 0, users: 0, commands: 74, status: 'online' };
 
   return (
     <div className="flex flex-col items-center">
-      {/* Hero Section */}
-      <section className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden px-4">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-        
-        <div className="relative z-10 text-center max-w-4xl mx-auto flex flex-col items-center">
-          <div className="mb-8 relative group">
-            <div className="absolute inset-[-10px] rounded-full bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-            <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-2 border-primary p-2 relative flex items-center justify-center bg-[#050f05] overflow-hidden">
-              <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(0,255,65,0.1)_50%,transparent_75%)] bg-[length:250%_250%,100%_100%] animate-[bg-pan_3s_linear_infinite]" />
-              <svg viewBox="0 0 100 100" className="w-20 h-20 md:w-32 md:h-32 text-primary" fill="currentColor">
-                <path d="M50 5 L90 25 L90 60 L50 95 L10 60 L10 25 Z" fill="none" stroke="currentColor" strokeWidth="4" />
-                <rect x="35" y="40" width="10" height="20" />
-                <rect x="55" y="40" width="10" height="20" />
-              </svg>
-            </div>
-            {/* Status indicator */}
-            <div className="absolute bottom-2 right-2 md:bottom-4 md:right-4 flex items-center gap-2 bg-[#050f05] px-3 py-1 rounded-full border border-primary/30">
-              <div className="w-3 h-3 bg-primary rounded-full status-dot-pulse" />
-              <span className="text-primary text-xs font-pixel uppercase tracking-widest">{botStats.status}</span>
-            </div>
+
+      {/* ── Hero ── */}
+      <section className="relative min-h-screen w-full flex flex-col items-center justify-center px-4 overflow-hidden">
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, hsl(239 84% 73% / 0.07) 0%, transparent 65%)' }}
+        />
+
+        <div className="relative z-10 text-center max-w-3xl mx-auto flex flex-col items-center gap-8">
+
+          {/* Pixel logo mark */}
+          <div className="float-slow relative">
+            <div
+              className="absolute inset-[-16px] rounded-full pointer-events-none"
+              style={{ background: 'radial-gradient(circle, hsl(239 84% 73% / 0.18) 0%, transparent 70%)' }}
+            />
+            <svg width="96" height="96" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+              <rect x="12" y="0"  width="4" height="4" fill="#818cf8" />
+              <rect x="8"  y="4"  width="4" height="4" fill="#c084fc" />
+              <rect x="16" y="4"  width="4" height="4" fill="#c084fc" />
+              <rect x="4"  y="8"  width="4" height="4" fill="#818cf8" />
+              <rect x="12" y="8"  width="4" height="4" fill="#fbbf24" />
+              <rect x="20" y="8"  width="4" height="4" fill="#818cf8" />
+              <rect x="4"  y="12" width="4" height="4" fill="#4ade80" />
+              <rect x="8"  y="12" width="4" height="4" fill="#818cf8" />
+              <rect x="16" y="12" width="4" height="4" fill="#818cf8" />
+              <rect x="20" y="12" width="4" height="4" fill="#4ade80" />
+              <rect x="8"  y="16" width="4" height="4" fill="#f472b6" />
+              <rect x="12" y="16" width="4" height="4" fill="#f472b6" />
+              <rect x="16" y="16" width="4" height="4" fill="#f472b6" />
+              <rect x="12" y="20" width="4" height="4" fill="#c084fc" />
+            </svg>
           </div>
 
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-pixel mb-6 tracking-tighter text-white glitch relative select-none">
-            SENTRIX
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#4ade80] status-pulse" />
+            <span className="text-xs text-muted-foreground font-medium tracking-wide">
+              {isLoading ? 'Checking…' : stats.status === 'online' ? 'Online and ready' : 'Offline'}
+            </span>
+          </div>
+
+          <h1
+            className="text-5xl md:text-7xl font-pixel select-none leading-tight"
+            style={{ fontFamily: "'Press Start 2P', cursive", letterSpacing: '-0.02em' }}
+          >
+            <span className="text-gradient">SENTRIX</span>
           </h1>
-          
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-2xl font-mono typewriter overflow-hidden border-r-2 border-primary whitespace-nowrap mx-auto" style={{ animation: 'typing 3.5s steps(40, end), blink-caret .75s step-end infinite' }}>
-            Next-generation military-grade security.
+
+          <p className="text-lg md:text-xl text-muted-foreground max-w-xl leading-relaxed">
+            A Discord bot that protects your server, keeps things active, and gives your community room to grow.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md justify-center">
-            <a 
-              href="https://discord.com/oauth2/authorize?client_id=1521797977478271056" 
-              target="_blank" 
+          <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm justify-center">
+            <a
+              href={INVITE_LINK}
+              target="_blank"
               rel="noreferrer"
-              className="group relative px-8 py-4 bg-primary text-black font-bold tracking-widest text-lg overflow-hidden flex items-center justify-center"
+              className="flex-1 text-center px-7 py-3 rounded-md pixel-btn-primary text-sm font-semibold"
             >
-              <div className="absolute inset-0 w-0 bg-white transition-all duration-[250ms] ease-out group-hover:w-full opacity-10" />
-              <span className="relative font-pixel text-sm">INITIALIZE</span>
+              Add to Server
             </a>
-            <a 
-              href="#features" 
-              className="px-8 py-4 border border-primary/30 text-white font-bold tracking-widest text-lg hover:bg-primary/5 hover:border-primary transition-all flex items-center justify-center glass-panel"
+            <Link
+              href="/commands"
+              className="flex-1 text-center px-7 py-3 rounded-md pixel-btn-secondary text-sm"
             >
-              <span className="font-pixel text-sm text-primary">DOCS</span>
-            </a>
+              Browse Commands
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="w-full py-20 border-y border-primary/20 bg-[#050f05]/80 backdrop-blur-sm relative overflow-hidden">
-        <div className="absolute inset-0 scanline opacity-30" />
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            <div className="p-8">
-              <div className="text-5xl md:text-6xl font-pixel text-gradient mb-4">
-                {isLoading ? "..." : <AnimatedCounter end={botStats.servers} />}
-              </div>
-              <div className="text-gray-400 font-mono tracking-widest uppercase text-sm">Secured Servers</div>
-            </div>
-            <div className="p-8 border-y md:border-y-0 md:border-x border-primary/20">
-              <div className="text-5xl md:text-6xl font-pixel text-gradient mb-4">
-                {isLoading ? "..." : <AnimatedCounter end={botStats.users} />}
-              </div>
-              <div className="text-gray-400 font-mono tracking-widest uppercase text-sm">Monitored Users</div>
-            </div>
-            <div className="p-8">
-              <div className="text-5xl md:text-6xl font-pixel text-gradient mb-4">
-                {isLoading ? "..." : <AnimatedCounter end={botStats.commands} />}
-              </div>
-              <div className="text-gray-400 font-mono tracking-widest uppercase text-sm">Active Directives</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="w-full py-32 container mx-auto px-4">
-        <h2 className="text-4xl md:text-5xl font-pixel text-center text-gradient mb-20">CORE SYSTEMS</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {/* Anti-Nuke */}
-          <div className="glass-panel p-8 group hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 bg-primary/10 border border-primary/30 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
-            <h3 className="font-pixel text-xl text-white mb-4">ANTI-NUKE</h3>
-            <p className="text-gray-400 font-mono text-sm leading-relaxed">
-              Military-grade defense algorithms. Instantly detects and neutralizes rogue administrators, webhook spam, mass bans, and channel deletions before they cause irreversible damage.
-            </p>
-          </div>
-
-          {/* Moderation */}
-          <div className="glass-panel p-8 group hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 bg-primary/10 border border-primary/30 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <line x1="9" y1="3" x2="9" y2="21" />
-              </svg>
-            </div>
-            <h3 className="font-pixel text-xl text-white mb-4">MODERATION</h3>
-            <p className="text-gray-400 font-mono text-sm leading-relaxed">
-              Advanced suite of moderation tools. Warning systems, temporary mutes, auto-mod filters, and deep logging to ensure community guidelines are strictly enforced without manual oversight.
-            </p>
-          </div>
-
-          {/* Leveling */}
-          <div className="glass-panel p-8 group hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 bg-primary/10 border border-primary/30 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
-            </div>
-            <h3 className="font-pixel text-xl text-white mb-4">LEVELING & ECONOMY</h3>
-            <p className="text-gray-400 font-mono text-sm leading-relaxed">
-              Gamify your community. Reward active members with XP, dynamic role assignments, and a fully customizable virtual economy system featuring shops, items, and global leaderboards.
-            </p>
-          </div>
-
-          {/* Utility */}
-          <div className="glass-panel p-8 group hover:border-primary/50 transition-colors">
-            <div className="w-16 h-16 bg-primary/10 border border-primary/30 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-              <svg viewBox="0 0 24 24" className="w-8 h-8 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-            </div>
-            <h3 className="font-pixel text-xl text-white mb-4">UTILITY & TICKETS</h3>
-            <p className="text-gray-400 font-mono text-sm leading-relaxed">
-              Streamline operations. Create transcript-logged support ticket systems, reaction roles, automated announcements, and custom welcome messages mapped to beautiful Discord embeds.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Embed Showcase Preview */}
-      <section className="w-full py-20 border-t border-primary/20 bg-[#050f05]/90">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <h2 className="text-3xl font-pixel text-center text-white mb-12">TRANSMISSION INTERCEPT</h2>
-          
-          <div className="bg-[#313338] rounded-md p-4 w-full border border-[#1e1f22] shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-1 h-full bg-primary" />
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
-                <span className="font-pixel text-xs text-primary">S</span>
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-white font-semibold">Sentrix</span>
-                  <span className="text-[10px] bg-[#5865F2] text-white px-1.5 py-0.5 rounded flex items-center gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M10.026 13.916l1.246 1.492c.628.74 1.764.717 2.36-.046l4.636-5.942-1.558-1.216-4.108 5.263-2.186-2.616-1.56 1.303a1.442 1.442 0 0 0 1.17.762z" />
-                    </svg>
-                    BOT
-                  </span>
-                  <span className="text-gray-400 text-xs">Today at 10:42 AM</span>
+      {/* ── Stats ── */}
+      <section className="w-full py-16 border-y border-[hsl(239_84%_73%/0.1)] bg-[hsl(240_35%_10%/0.5)]">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 text-center">
+            {[
+              { value: stats.servers,  label: 'Servers'  },
+              { value: stats.users,    label: 'Members'  },
+              { value: stats.commands, label: 'Commands' },
+            ].map((s, i) => (
+              <div
+                key={s.label}
+                className={`py-10 px-6 ${i === 1 ? 'border-y md:border-y-0 md:border-x border-[hsl(239_84%_73%/0.1)]' : ''}`}
+              >
+                <div
+                  className="text-4xl md:text-5xl font-pixel text-gradient mb-3"
+                  style={{ fontFamily: "'Press Start 2P', cursive" }}
+                >
+                  {isLoading ? '…' : <AnimatedCounter end={s.value} />}
                 </div>
-                
-                {/* Embed Content */}
-                <div className="bg-[#2b2d31] rounded p-4 mt-2 border-l-4 border-primary">
-                  <div className="flex justify-between items-start">
+                <div className="text-sm text-muted-foreground font-medium tracking-wide">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Features ── */}
+      <section id="features" className="w-full py-28 container mx-auto px-4">
+        <div className="text-center mb-16">
+          <h2
+            className="text-2xl md:text-3xl font-pixel text-gradient mb-4"
+            style={{ fontFamily: "'Press Start 2P', cursive" }}
+          >
+            What it does
+          </h2>
+          <p className="text-muted-foreground max-w-lg mx-auto">
+            Everything your server needs — protection, moderation, engagement, and community tools — built into one bot.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-5xl mx-auto">
+          {FEATURES.map((f) => (
+            <div key={f.label} className="pixel-card rounded-xl p-7 flex gap-5">
+              <div
+                className="w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                style={{ background: `${f.color}18`, color: f.color, border: `1px solid ${f.color}30` }}
+              >
+                {f.icon}
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-2">{f.label}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Discord embed preview ── */}
+      <section className="w-full py-20 border-t border-[hsl(239_84%_73%/0.1)] bg-[hsl(240_35%_10%/0.4)]">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <div className="text-center mb-10">
+            <h2
+              className="text-xl md:text-2xl font-pixel text-gradient mb-3"
+              style={{ fontFamily: "'Press Start 2P', cursive" }}
+            >
+              See it in action
+            </h2>
+            <p className="text-muted-foreground text-sm">This is what Sentrix sends when it catches something suspicious.</p>
+          </div>
+
+          <div className="bg-[#313338] rounded-lg p-4 border border-[#1e1f22] shadow-2xl">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-[hsl(239_84%_73%/0.2)] flex items-center justify-center flex-shrink-0 mt-0.5">
+                <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+                  <rect x="12" y="0"  width="4" height="4" fill="#818cf8" />
+                  <rect x="8"  y="4"  width="4" height="4" fill="#c084fc" />
+                  <rect x="16" y="4"  width="4" height="4" fill="#c084fc" />
+                  <rect x="12" y="8"  width="4" height="4" fill="#fbbf24" />
+                  <rect x="8"  y="16" width="4" height="4" fill="#f472b6" />
+                  <rect x="12" y="16" width="4" height="4" fill="#f472b6" />
+                  <rect x="16" y="16" width="4" height="4" fill="#f472b6" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <span className="text-white font-semibold text-sm">Sentrix</span>
+                  <span className="text-[10px] bg-[#5865F2] text-white px-1.5 py-0.5 rounded font-medium">APP</span>
+                  <span className="text-[#72767d] text-xs">Today at 3:14 PM</span>
+                </div>
+                <div className="bg-[#2b2d31] rounded-sm p-4 border-l-4 border-[#818cf8]">
+                  <p className="text-white text-sm font-semibold mb-1">🛡️ Action blocked — Mass ban attempt</p>
+                  <p className="text-[#dbdee1] text-xs mb-4 leading-relaxed">
+                    Sentrix detected an unusual spike in bans from one account and stepped in.
+                  </p>
+                  <div className="grid grid-cols-2 gap-3 text-xs mb-4">
                     <div>
-                      <h3 className="text-white font-bold mb-2">⚠️ THREAT NEUTRALIZED: Mass Ban Attempt</h3>
-                      <p className="text-sm text-gray-300 mb-4">Sentrix detected an anomalous spike in administrative actions.</p>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                        <div>
-                          <div className="text-gray-400 mb-1">Action Type</div>
-                          <div className="text-white font-mono bg-[#1e1f22] px-2 py-1 rounded inline-block">MEMBER_BAN</div>
-                        </div>
-                        <div>
-                          <div className="text-gray-400 mb-1">Actor</div>
-                          <div className="text-primary font-mono bg-primary/10 px-2 py-1 rounded inline-block">@rogue_admin</div>
-                        </div>
-                      </div>
-                      
-                      <div className="text-sm">
-                        <div className="text-gray-400 mb-1">Resolution</div>
-                        <div className="text-white">Actor stripped of permissions and quarantined. Damage reversed. Time elapsed: <span className="text-primary font-bold">142ms</span></div>
-                      </div>
+                      <div className="text-[#b5bac1] mb-1 font-medium">Action</div>
+                      <div className="text-white font-mono bg-[#1e1f22] px-2 py-1 rounded inline-block">MEMBER_BAN</div>
                     </div>
+                    <div>
+                      <div className="text-[#b5bac1] mb-1 font-medium">By</div>
+                      <div className="text-[#818cf8] font-mono bg-[#818cf8]/10 px-2 py-1 rounded inline-block">@rogue_mod</div>
+                    </div>
+                  </div>
+                  <div className="text-xs">
+                    <span className="text-[#b5bac1]">Result — </span>
+                    <span className="text-[#dbdee1]">
+                      Permissions removed. Bans reversed. Time to respond:{' '}
+                      <span className="text-[#4ade80] font-semibold">138ms</span>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -219,7 +265,33 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── CTA ── */}
+      <section className="w-full py-28 text-center px-4">
+        <div className="relative max-w-2xl mx-auto">
+          <div
+            className="absolute inset-0 rounded-2xl pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse at center, hsl(239 84% 73% / 0.06) 0%, transparent 70%)' }}
+          />
+          <h2
+            className="text-2xl md:text-3xl font-pixel text-gradient mb-5 relative"
+            style={{ fontFamily: "'Press Start 2P', cursive" }}
+          >
+            Ready?
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
+            Add Sentrix to your server in seconds. No complicated setup needed.
+          </p>
+          <a
+            href={INVITE_LINK}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block px-9 py-3.5 rounded-md pixel-btn-primary text-sm font-semibold"
+          >
+            Add to Server
+          </a>
+        </div>
+      </section>
+
     </div>
   );
 }
-

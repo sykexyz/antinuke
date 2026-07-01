@@ -1,21 +1,42 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { CursorTrail } from "@/components/CursorTrail";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 relative">
-      <CursorTrail />
-      <div className="text-center z-10">
-        <div className="text-[120px] font-pixel text-gradient glitch mb-4 select-none leading-none">404</div>
-        <h2 className="text-2xl font-mono text-white mb-8 border-r-2 border-primary whitespace-nowrap overflow-hidden inline-block" style={{ animation: 'typing 2s steps(40, end), blink-caret .75s step-end infinite' }}>
-          Directive not found.
-        </h2>
-        <br />
-        <Link href="/" className="px-8 py-4 bg-primary/10 border border-primary text-primary font-bold tracking-widest text-sm hover:bg-primary hover:text-black transition-all inline-block neon-box-shadow">
-          RETURN TO BASE
-        </Link>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+
+      <div className="float-slow mb-8">
+        <svg width="80" height="80" viewBox="0 0 28 28" fill="none" aria-hidden="true" opacity="0.5">
+          <rect x="12" y="0"  width="4" height="4" fill="#818cf8" />
+          <rect x="8"  y="4"  width="4" height="4" fill="#c084fc" />
+          <rect x="16" y="4"  width="4" height="4" fill="#c084fc" />
+          <rect x="12" y="8"  width="4" height="4" fill="#fbbf24" />
+          <rect x="8"  y="16" width="4" height="4" fill="#f472b6" />
+          <rect x="12" y="16" width="4" height="4" fill="#f472b6" />
+          <rect x="16" y="16" width="4" height="4" fill="#f472b6" />
+          <rect x="12" y="20" width="4" height="4" fill="#c084fc" />
+        </svg>
       </div>
+
+      <div
+        className="text-8xl md:text-9xl font-pixel text-gradient select-none leading-none mb-6"
+        style={{ fontFamily: "'Press Start 2P', cursive" }}
+      >
+        404
+      </div>
+
+      <h2 className="text-xl font-semibold text-foreground mb-3">Page not found</h2>
+      <p className="text-muted-foreground text-sm mb-10 max-w-xs">
+        This page doesn't exist. Maybe it was moved, or the link is wrong.
+      </p>
+
+      <Link
+        href="/"
+        className="inline-block px-7 py-3 rounded-md pixel-btn-primary text-sm font-semibold"
+      >
+        Go home
+      </Link>
+
     </div>
   );
 }

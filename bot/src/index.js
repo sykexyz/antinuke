@@ -6,6 +6,10 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+if (!process.env.DISCORD_BOT_TOKEN && process.env.DISCORD_BOT_TOKEN_B64) {
+  process.env.DISCORD_BOT_TOKEN = Buffer.from(process.env.DISCORD_BOT_TOKEN_B64, "base64").toString("utf-8");
+}
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,

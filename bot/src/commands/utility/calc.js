@@ -1,26 +1,24 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
+import { primaryEmbed, errorEmbed } from "../../utils/embed.js";
 
 export default {
   name: "calc",
   description: "Calculate a math expression",
-  usage: "!calc <expression>",
   category: "utility",
   ownerOnly: false,
-  aliases: ["calculator", "math"],
   cooldown: 3,
-  async execute(message, args, client, config) {
-    const expr = args.join(" ").replace(/[^0-9+\-*/().% ]/g, "");
-    if (!expr) return message.reply({ embeds: [{ color: 0xff3333, description: "Provide a math expression." }] });
+  data: new SlashCommandBuilder()
+    .setName("calc")
+    .setDescription("Calculate a math expression")
+    .addStringOption(opt => opt.setName("expression").setDescription("Math expression to evaluate").setRequired(true)),
+  async execute(interaction, client) {
+    const expr = interaction.options.getString("expression").replace(/[^0-9+\-*/().% ]/g, "");
+    if (!expr) return interaction.reply({ embeds: [errorEmbed("Invalid", "Provide a valid math expression.")], ephemeral: true });
     try {
       const result = Function(`"use strict"; return (${expr})`)();
-      const embed = new EmbedBuilder()
-        .setColor(0x00ff41)
-        .setTitle("Calculator")
-        .setDescription(`**Expression:** \`${expr}\`\n**Result:** \`${result}\``)
-        .setTimestamp();
-      await message.reply({ embeds: [embed] });
+      await interaction.reply({ embeds: [primaryEmbed("Calculator", `**◦ Expression** — \`${expr}\`\n**◦ Result** — \`${result}\``)] });
     } catch {
-      await message.reply({ embeds: [{ color: 0xff3333, description: "Invalid expression." }] });
+      await interaction.reply({ embeds: [errorEmbed("Error", "Invalid expression.")], ephemeral: true });
     }
   },
 };

@@ -1,51 +1,65 @@
 import { EmbedBuilder } from "discord.js";
 
-export const Colors = {
-  green: 0x00ff41,
-  red: 0xff3333,
-  orange: 0xff8800,
-  blue: 0x5865f2,
-  yellow: 0xffcc00,
-  gray: 0x36393f,
+const COLORS = {
+  success: 0x00e676,
+  error:   0xff1744,
+  info:    0x40c4ff,
+  warn:    0xffab00,
+  nuke:    0xff1744,
+  primary: 0x7c4dff,
+  pink:    0xff69b4,
+  neutral: 0x2b2d31,
 };
 
-export function successEmbed(title, description) {
+const SYMBOLS = {
+  success: "✦",
+  error:   "✕",
+  info:    "◈",
+  warn:    "◬",
+  nuke:    "⚡",
+  primary: "◆",
+};
+
+function base(color, symbol, title, description) {
   return new EmbedBuilder()
-    .setColor(Colors.green)
-    .setTitle(`✅ ${title}`)
+    .setColor(color)
+    .setAuthor({ name: `${symbol}  ${title}` })
     .setDescription(description)
+    .setFooter({ text: "SENTRIX" })
     .setTimestamp();
+}
+
+export function successEmbed(title, description) {
+  return base(COLORS.success, SYMBOLS.success, title, description);
 }
 
 export function errorEmbed(title, description) {
-  return new EmbedBuilder()
-    .setColor(Colors.red)
-    .setTitle(`❌ ${title}`)
-    .setDescription(description)
-    .setTimestamp();
+  return base(COLORS.error, SYMBOLS.error, title, description);
 }
 
 export function infoEmbed(title, description) {
-  return new EmbedBuilder()
-    .setColor(Colors.blue)
-    .setTitle(`ℹ️ ${title}`)
-    .setDescription(description)
-    .setTimestamp();
+  return base(COLORS.info, SYMBOLS.info, title, description);
 }
 
 export function warnEmbed(title, description) {
-  return new EmbedBuilder()
-    .setColor(Colors.orange)
-    .setTitle(`⚠️ ${title}`)
-    .setDescription(description)
-    .setTimestamp();
+  return base(COLORS.warn, SYMBOLS.warn, title, description);
 }
 
 export function nukeAlertEmbed(action, perpetrator, guildName) {
   return new EmbedBuilder()
-    .setColor(Colors.red)
-    .setTitle("🛡️ ANTI-NUKE TRIGGERED")
+    .setColor(COLORS.nuke)
+    .setAuthor({ name: "⚡  ANTI-NUKE TRIGGERED" })
     .setDescription(`**Action Blocked:** ${action}\n**Perpetrator:** ${perpetrator}\n**Server:** ${guildName}`)
-    .setTimestamp()
-    .setFooter({ text: "Sentrix Anti-Nuke System" });
+    .setFooter({ text: "SENTRIX  •  Security System" })
+    .setTimestamp();
 }
+
+export function primaryEmbed(title, description) {
+  return base(COLORS.primary, SYMBOLS.primary, title, description);
+}
+
+export function pinkEmbed(title, description) {
+  return base(COLORS.pink, "♥", title, description);
+}
+
+export { COLORS };

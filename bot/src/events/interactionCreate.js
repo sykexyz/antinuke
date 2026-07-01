@@ -1,29 +1,58 @@
-import { EmbedBuilder } from "discord.js";
+import { getGuildConfig } from "../lib/db.js";
+import { errorEmbed } from "../utils/embed.js";
 import { query } from "../lib/db.js";
-import { successEmbed, errorEmbed, infoEmbed } from "../utils/embed.js";
+import { EmbedBuilder } from "discord.js";
 
 export default {
   name: "interactionCreate",
   async execute(interaction, client) {
 
-    // Slash commands — bot uses prefix (!) commands only
+    // ── Slash Commands ──────────────────────────────────────────────────────
     if (interaction.isChatInputCommand()) {
-      const config = interaction.guild
-        ? await query("SELECT prefix FROM guild_config WHERE guild_id = $1", [interaction.guild.id]).then(r => r.rows[0]).catch(() => null)
-        : null;
-      const prefix = config?.prefix || "!";
-      return interaction.reply({
-        embeds: [
-          infoEmbed(
-            "Use Prefix Commands",
-            `This bot uses prefix commands, not slash commands.\nTry \`${prefix}${interaction.commandName}\` instead.\n\nUse \`${prefix}help\` to see all available commands.`
-          )
-        ],
-        ephemeral: true,
-      }).catch(() => {});
+      const command = client.commands.get(interaction.commandName);
+      if (!command) return;
+
+      // Owner-only check
+      if (command.ownerOnly && interaction.user.id !== interaction.guild?.ownerId) {
+        return interaction.reply({
+          embeds: [errorEmbed("Owner Only", "Only the server owner can use this command.")],
+          ephemeral: true,
+        }).catch(() => {});
+      }
+
+      // Cooldown check
+      if (!client.cooldowns.has(command.name)) client.cooldowns.set(command.name, new Map());
+      const timestamps = client.cooldowns.get(command.name);
+      const cooldown = (command.cooldown || 3) * 1000;
+      const now = Date.now();
+      if (timestamps.has(interaction.user.id)) {
+        const expiry = timestamps.get(interaction.user.id) + cooldown;
+        if (now < expiry) {
+          const remaining = ((expiry - now) / 1000).toFixed(1);
+          return interaction.reply({
+            embeds: [errorEmbed("Cooldown", `Wait **${remaining}s** before using **/${command.name}** again.`)],
+            ephemeral: true,
+          }).catch(() => {});
+        }
+      }
+      timestamps.set(interaction.user.id, now);
+      setTimeout(() => timestamps.delete(interaction.user.id), cooldown);
+
+      try {
+        await command.execute(interaction, client);
+      } catch (err) {
+        console.error(`[CMD] Error in /${command.name}:`, err);
+        const errEmbed = errorEmbed("Error", "Something went wrong. Please try again.");
+        if (interaction.replied || interaction.deferred) {
+          interaction.followUp({ embeds: [errEmbed], ephemeral: true }).catch(() => {});
+        } else {
+          interaction.reply({ embeds: [errEmbed], ephemeral: true }).catch(() => {});
+        }
+      }
+      return;
     }
 
-    // Button interactions
+    // ── Button Interactions ─────────────────────────────────────────────────
     if (!interaction.isButton()) return;
 
     const { customId, guild, member, channel } = interaction;
@@ -41,6 +70,7 @@ export default {
           "UPDATE tickets SET status = 'closed', closed_at = NOW() WHERE channel_id = $1",
           [channel.id]
         );
+        const { successEmbed } = await import("../utils/embed.js");
         await interaction.reply({ embeds: [successEmbed("Ticket Closed", "This ticket has been closed and will be deleted in 5 seconds.")] });
         setTimeout(() => channel.delete().catch(() => {}), 5000);
       } catch (err) {
@@ -70,9 +100,10 @@ export default {
         await interaction.reply({
           embeds: [
             new EmbedBuilder()
-              .setColor(0x00ff41)
-              .setTitle("✅ Ticket Claimed")
+              .setColor(0x00e676)
+              .setAuthor({ name: "✦  Ticket Claimed" })
               .setDescription(`This ticket has been claimed by ${member}.`)
+              .setFooter({ text: "SENTRIX" })
               .setTimestamp()
           ]
         });

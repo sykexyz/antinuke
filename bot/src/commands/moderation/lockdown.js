@@ -1,26 +1,29 @@
-import { PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import { successEmbed, errorEmbed } from "../../utils/embed.js";
 
 export default {
   name: "lockdown",
-  description: "Lock all channels (emergency lockdown)",
-  usage: "!lockdown [unlock]",
+  description: "Lock or unlock all text channels (emergency lockdown)",
   category: "moderation",
   ownerOnly: true,
-  aliases: ["lock"],
   cooldown: 10,
-  async execute(message, args, client, config) {
-    if (!message.member.permissions.has(PermissionFlagsBits.ManageChannels))
-      return message.reply({ embeds: [errorEmbed("No Permission", "You need ManageChannels permission.")] });
+  data: new SlashCommandBuilder()
+    .setName("lockdown")
+    .setDescription("Lock or unlock all text channels")
+    .addBooleanOption(opt => opt.setName("unlock").setDescription("Set to true to lift the lockdown").setRequired(false)),
+  async execute(interaction, client) {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels))
+      return interaction.reply({ embeds: [errorEmbed("No Permission", "You need **Manage Channels** permission.")], ephemeral: true });
 
-    const unlock = args[0] === "unlock";
+    const unlock = interaction.options.getBoolean("unlock") ?? false;
+    await interaction.deferReply();
     let count = 0;
-    for (const [, channel] of message.guild.channels.cache) {
+    for (const [, channel] of interaction.guild.channels.cache) {
       if (channel.isTextBased()) {
-        await channel.permissionOverwrites.edit(message.guild.roles.everyone, { SendMessages: unlock ? null : false }).catch(() => {});
+        await channel.permissionOverwrites.edit(interaction.guild.roles.everyone, { SendMessages: unlock ? null : false }).catch(() => {});
         count++;
       }
     }
-    await message.reply({ embeds: [successEmbed(unlock ? "Lockdown Lifted" : "Lockdown Activated", `${unlock ? "Unlocked" : "Locked"} **${count}** channels.`)] });
+    await interaction.editReply({ embeds: [successEmbed(unlock ? "Lockdown Lifted" : "Lockdown Activated", `${unlock ? "Unlocked" : "Locked"} **${count}** channels.`)] });
   },
 };

@@ -1,32 +1,32 @@
-import { PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import { successEmbed, errorEmbed } from "../../utils/embed.js";
 
 export default {
   name: "purge",
   description: "Delete messages from the channel",
-  usage: "!purge <amount> [@user]",
   category: "moderation",
   ownerOnly: true,
-  aliases: ["clear", "nuke"],
   cooldown: 5,
-  async execute(message, args, client, config) {
-    if (!message.member.permissions.has(PermissionFlagsBits.ManageMessages))
-      return message.reply({ embeds: [errorEmbed("No Permission", "You need ManageMessages permission.")] });
+  data: new SlashCommandBuilder()
+    .setName("purge")
+    .setDescription("Delete messages from the channel")
+    .addIntegerOption(opt => opt.setName("amount").setDescription("Number of messages to delete (1–100)").setRequired(true).setMinValue(1).setMaxValue(100))
+    .addUserOption(opt => opt.setName("user").setDescription("Only delete messages from this user").setRequired(false)),
+  async execute(interaction, client) {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageMessages))
+      return interaction.reply({ embeds: [errorEmbed("No Permission", "You need **Manage Messages** permission.")], ephemeral: true });
 
-    const amount = parseInt(args[0]);
-    if (isNaN(amount) || amount < 1 || amount > 100)
-      return message.reply({ embeds: [errorEmbed("Invalid Amount", "Provide a number between 1 and 100.")] });
+    const amount = interaction.options.getInteger("amount");
+    const filterUser = interaction.options.getUser("user");
 
-    const target = message.mentions.members.first();
-    await message.delete().catch(() => {});
+    await interaction.deferReply({ ephemeral: true });
 
-    let messages = await message.channel.messages.fetch({ limit: 100 });
-    if (target) messages = messages.filter(m => m.author.id === target.id);
-    messages = messages.first(amount);
+    let messages = await interaction.channel.messages.fetch({ limit: 100 });
+    if (filterUser) messages = messages.filter(m => m.author.id === filterUser.id);
+    messages = [...messages.values()].slice(0, amount);
 
-    const deleted = await message.channel.bulkDelete(messages, true).catch(() => null);
+    const deleted = await interaction.channel.bulkDelete(messages, true).catch(() => null);
     const count = deleted?.size || 0;
-    const reply = await message.channel.send({ embeds: [successEmbed("Purged", `Deleted **${count}** messages${target ? ` from ${target.user.tag}` : ""}.`)] });
-    setTimeout(() => reply.delete().catch(() => {}), 5000);
+    await interaction.editReply({ embeds: [successEmbed("Purged", `Deleted **${count}** messages${filterUser ? ` from **${filterUser.username}**` : ""}.`)] });
   },
 };

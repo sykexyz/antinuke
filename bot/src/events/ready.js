@@ -11,16 +11,16 @@ const statuses = [
 let statusIdx = 0;
 
 export default {
-  name: "ready",
+  name: "clientReady",
   once: true,
   async execute(client) {
     console.log(`[BOT] Logged in as ${client.user.tag}`);
 
     try {
-      await client.application.commands.set([]);
-      console.log("[BOT] Cleared all slash commands");
+      await client.application.commands.set(client.slashData || []);
+      console.log(`[BOT] Registered ${(client.slashData || []).length} slash commands`);
     } catch (e) {
-      console.error("[BOT] Failed to clear slash commands:", e.message);
+      console.error("[BOT] Failed to register slash commands:", e.message);
     }
 
     client.user.setPresence({ status: "online", activities: [statuses[0]] });
@@ -35,7 +35,7 @@ export default {
       const userCount = client.guilds.cache.reduce((a, g) => a + g.memberCount, 0);
       await query(
         "INSERT INTO bot_stats (server_count, user_count, command_count) VALUES ($1, $2, $3)",
-        [serverCount, userCount, 200]
+        [serverCount, userCount, client.slashData?.length || 0]
       );
     } catch (e) {
       console.error("[STATS] Failed to record stats:", e.message);

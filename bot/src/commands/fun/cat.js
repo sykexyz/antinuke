@@ -1,25 +1,29 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { errorEmbed, COLORS } from "../../utils/embed.js";
 
 export default {
   name: "cat",
   description: "Get a random cat image",
-  usage: "!cat",
   category: "fun",
   ownerOnly: false,
-  aliases: [],
   cooldown: 5,
-  async execute(message, args, client, config) {
+  data: new SlashCommandBuilder()
+    .setName("cat")
+    .setDescription("Get a random cat image"),
+  async execute(interaction, client) {
+    await interaction.deferReply();
     try {
       const { default: axios } = await import("axios");
       const res = await axios.get("https://api.thecatapi.com/v1/images/search");
       const embed = new EmbedBuilder()
-        .setColor(0x00ff41)
-        .setTitle("Random Cat 🐱")
+        .setColor(COLORS.primary)
+        .setAuthor({ name: "◆  Random Cat 🐱" })
         .setImage(res.data[0].url)
+        .setFooter({ text: "SENTRIX" })
         .setTimestamp();
-      await message.reply({ embeds: [embed] });
+      await interaction.editReply({ embeds: [embed] });
     } catch {
-      await message.reply({ embeds: [{ color: 0xff3333, description: "Could not fetch a cat image." }] });
+      await interaction.editReply({ embeds: [errorEmbed("Error", "Could not fetch a cat image.")] });
     }
   },
 };

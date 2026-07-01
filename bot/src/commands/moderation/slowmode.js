@@ -1,23 +1,22 @@
-import { PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import { successEmbed, errorEmbed } from "../../utils/embed.js";
 
 export default {
   name: "slowmode",
-  description: "Set slowmode for a channel",
-  usage: "!slowmode <seconds>",
+  description: "Set slowmode for this channel",
   category: "moderation",
   ownerOnly: true,
-  aliases: ["slow"],
   cooldown: 5,
-  async execute(message, args, client, config) {
-    if (!message.member.permissions.has(PermissionFlagsBits.ManageChannels))
-      return message.reply({ embeds: [errorEmbed("No Permission", "You need ManageChannels permission.")] });
+  data: new SlashCommandBuilder()
+    .setName("slowmode")
+    .setDescription("Set slowmode for this channel")
+    .addIntegerOption(opt => opt.setName("seconds").setDescription("Slowmode in seconds (0 to disable)").setRequired(true).setMinValue(0).setMaxValue(21600)),
+  async execute(interaction, client) {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageChannels))
+      return interaction.reply({ embeds: [errorEmbed("No Permission", "You need **Manage Channels** permission.")], ephemeral: true });
 
-    const seconds = parseInt(args[0]);
-    if (isNaN(seconds) || seconds < 0 || seconds > 21600)
-      return message.reply({ embeds: [errorEmbed("Invalid", "Slowmode must be 0-21600 seconds.")] });
-
-    await message.channel.setRateLimitPerUser(seconds);
-    await message.reply({ embeds: [successEmbed("Slowmode", seconds === 0 ? "Slowmode disabled." : `Slowmode set to **${seconds}s**.`)] });
+    const seconds = interaction.options.getInteger("seconds");
+    await interaction.channel.setRateLimitPerUser(seconds);
+    await interaction.reply({ embeds: [successEmbed("Slowmode", seconds === 0 ? "Slowmode has been disabled." : `Slowmode set to **${seconds}s**.`)] });
   },
 };

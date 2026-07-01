@@ -1,24 +1,25 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
+import { pinkEmbed } from "../../utils/embed.js";
 
 export default {
   name: "ship",
-  description: "Ship two users together",
-  usage: "!ship @user1 @user2",
+  description: "Ship two users together and check compatibility",
   category: "fun",
   ownerOnly: false,
-  aliases: [],
   cooldown: 5,
-  async execute(message, args, client, config) {
-    const u1 = message.mentions.users.first() || message.author;
-    const u2 = message.mentions.users.at(1) || message.author;
+  data: new SlashCommandBuilder()
+    .setName("ship")
+    .setDescription("Ship two users together and check compatibility")
+    .addUserOption(opt => opt.setName("user1").setDescription("First user").setRequired(true))
+    .addUserOption(opt => opt.setName("user2").setDescription("Second user").setRequired(true)),
+  async execute(interaction, client) {
+    const u1 = interaction.options.getUser("user1");
+    const u2 = interaction.options.getUser("user2");
     const seed = (u1.id + u2.id).split("").reduce((a, c) => a + c.charCodeAt(0), 0);
     const pct = seed % 101;
-    const bar = "█".repeat(Math.floor(pct / 10)) + "░".repeat(10 - Math.floor(pct / 10));
-    const embed = new EmbedBuilder()
-      .setColor(0xff69b4)
-      .setTitle("Compatibility")
-      .setDescription(`**${u1.username}** ❤️ **${u2.username}**\n\n[${bar}] **${pct}%**\n\n${pct >= 80 ? "A perfect match!" : pct >= 50 ? "Pretty good!" : pct >= 30 ? "Could work..." : "Not looking great..."}`)
-      .setTimestamp();
-    await message.reply({ embeds: [embed] });
+    const filled = Math.floor(pct / 10);
+    const bar = "█".repeat(filled) + "░".repeat(10 - filled);
+    const verdict = pct >= 80 ? "A perfect match! 💍" : pct >= 50 ? "Pretty good! 💕" : pct >= 30 ? "Could work... 🤔" : "Not looking great... 💔";
+    await interaction.reply({ embeds: [pinkEmbed("Compatibility ♥", `**${u1.username}** ❤️ **${u2.username}**\n\n\`[${bar}]\` **${pct}%**\n\n${verdict}`)] });
   },
 };

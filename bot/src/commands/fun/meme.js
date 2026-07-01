@@ -1,14 +1,17 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { errorEmbed, COLORS } from "../../utils/embed.js";
 
 export default {
   name: "meme",
-  description: "Get a random meme",
-  usage: "!meme",
+  description: "Get a random meme from Reddit",
   category: "fun",
   ownerOnly: false,
-  aliases: [],
   cooldown: 5,
-  async execute(message, args, client, config) {
+  data: new SlashCommandBuilder()
+    .setName("meme")
+    .setDescription("Get a random meme from Reddit"),
+  async execute(interaction, client) {
+    await interaction.deferReply();
     try {
       const { default: axios } = await import("axios");
       const res = await axios.get("https://www.reddit.com/r/memes/random.json", {
@@ -16,14 +19,14 @@ export default {
       });
       const post = res.data[0].data.children[0].data;
       const embed = new EmbedBuilder()
-        .setColor(0x00ff41)
-        .setTitle(post.title.slice(0, 256))
+        .setColor(COLORS.primary)
+        .setAuthor({ name: `◆  ${post.title.slice(0, 256)}` })
         .setImage(post.url)
-        .setFooter({ text: `👍 ${post.ups} | r/memes` })
+        .setFooter({ text: `👍 ${post.ups}  •  r/memes  •  SENTRIX` })
         .setTimestamp();
-      await message.reply({ embeds: [embed] });
+      await interaction.editReply({ embeds: [embed] });
     } catch {
-      await message.reply({ embeds: [{ color: 0xff3333, description: "Could not fetch a meme right now." }] });
+      await interaction.editReply({ embeds: [errorEmbed("Error", "Could not fetch a meme right now.")] });
     }
   },
 };

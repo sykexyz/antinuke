@@ -1,4 +1,5 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
+import { errorEmbed } from "../../utils/embed.js";
 
 const roasts = [
   "You're the reason the gene pool needs a lifeguard.",
@@ -15,20 +16,17 @@ const roasts = [
 
 export default {
   name: "roast",
-  description: "Roast a user with a random savage line",
-  usage: "!roast @user",
+  description: "Roast a user with a savage line",
   category: "fun",
   ownerOnly: false,
-  aliases: [],
   cooldown: 5,
-  async execute(message, args, client, config) {
-    const target = message.mentions.users.first() || message.author;
+  data: new SlashCommandBuilder()
+    .setName("roast")
+    .setDescription("Roast a user with a savage line")
+    .addUserOption(opt => opt.setName("user").setDescription("User to roast").setRequired(true)),
+  async execute(interaction, client) {
+    const target = interaction.options.getUser("user");
     const roast = roasts[Math.floor(Math.random() * roasts.length)];
-    const embed = new EmbedBuilder()
-      .setColor(0xff3333)
-      .setTitle(`Roasting ${target.username} 🔥`)
-      .setDescription(roast)
-      .setTimestamp();
-    await message.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [errorEmbed(`🔥 Roasting ${target.username}`, roast)] });
   },
 };

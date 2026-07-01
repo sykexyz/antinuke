@@ -1,21 +1,26 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { COLORS } from "../../utils/embed.js";
 
 export default {
   name: "avatar",
   description: "View a user's avatar",
-  usage: "!avatar [@user]",
   category: "utility",
   ownerOnly: false,
-  aliases: ["av", "pfp"],
   cooldown: 3,
-  async execute(message, args, client, config) {
-    const target = message.mentions.users.first() || message.author;
+  data: new SlashCommandBuilder()
+    .setName("avatar")
+    .setDescription("View a user's avatar")
+    .addUserOption(opt => opt.setName("user").setDescription("Target user").setRequired(false)),
+  async execute(interaction, client) {
+    const target = interaction.options.getUser("user") || interaction.user;
+    const url = target.displayAvatarURL({ dynamic: true, size: 4096 });
     const embed = new EmbedBuilder()
-      .setColor(0x00ff41)
-      .setTitle(`${target.tag}'s Avatar`)
-      .setImage(target.displayAvatarURL({ dynamic: true, size: 4096 }))
-      .setURL(target.displayAvatarURL({ dynamic: true, size: 4096 }))
+      .setColor(COLORS.primary)
+      .setAuthor({ name: `◆  ${target.username}'s Avatar` })
+      .setImage(url)
+      .setURL(url)
+      .setFooter({ text: "SENTRIX" })
       .setTimestamp();
-    await message.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [embed] });
   },
 };

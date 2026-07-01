@@ -1,19 +1,21 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { COLORS } from "../../utils/embed.js";
 
 export default {
   name: "serverinfo",
   description: "View server information",
-  usage: "!serverinfo",
   category: "utility",
   ownerOnly: false,
-  aliases: ["si", "guildinfo"],
   cooldown: 5,
-  async execute(message, args, client, config) {
-    const g = message.guild;
+  data: new SlashCommandBuilder()
+    .setName("serverinfo")
+    .setDescription("View server information"),
+  async execute(interaction, client) {
+    const g = interaction.guild;
     await g.fetch();
     const embed = new EmbedBuilder()
-      .setColor(0x00ff41)
-      .setTitle(g.name)
+      .setColor(COLORS.primary)
+      .setAuthor({ name: `◆  ${g.name}`, iconURL: g.iconURL({ dynamic: true }) })
       .setThumbnail(g.iconURL({ dynamic: true }))
       .addFields(
         { name: "Owner", value: `<@${g.ownerId}>`, inline: true },
@@ -26,7 +28,8 @@ export default {
         { name: "Verification", value: g.verificationLevel.toString(), inline: true },
         { name: "ID", value: g.id, inline: true },
       )
+      .setFooter({ text: "SENTRIX" })
       .setTimestamp();
-    await message.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [embed] });
   },
 };

@@ -7,6 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export async function loadCommands(client) {
   const commandsPath = join(__dirname, "../commands");
   const categories = readdirSync(commandsPath).filter(f => statSync(join(commandsPath, f)).isDirectory());
+  const slashData = [];
 
   for (const category of categories) {
     const files = readdirSync(join(commandsPath, category)).filter(f => f.endsWith(".js"));
@@ -15,13 +16,13 @@ export async function loadCommands(client) {
       const command = mod.default;
       if (command?.name) {
         client.commands.set(command.name, command);
-        if (command.aliases) {
-          for (const alias of command.aliases) {
-            client.commands.set(alias, command);
-          }
+        if (command.data) {
+          slashData.push(command.data.toJSON());
         }
       }
     }
   }
-  console.log(`[CMD] Loaded ${client.commands.size} commands`);
+
+  client.slashData = slashData;
+  console.log(`[CMD] Loaded ${client.commands.size} commands (${slashData.length} slash)`);
 }

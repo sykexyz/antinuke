@@ -1,23 +1,19 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
+import { primaryEmbed } from "../../utils/embed.js";
 
 export default {
   name: "dice",
   description: "Roll a dice",
-  usage: "!dice [sides]",
   category: "fun",
   ownerOnly: false,
-  aliases: ["roll"],
   cooldown: 3,
-  async execute(message, args, client, config) {
-    const sides = parseInt(args[0]) || 6;
-    if (sides < 2 || sides > 1000)
-      return message.reply({ embeds: [{ color: 0xff3333, description: "Dice must have 2–1000 sides." }] });
+  data: new SlashCommandBuilder()
+    .setName("dice")
+    .setDescription("Roll a dice")
+    .addIntegerOption(opt => opt.setName("sides").setDescription("Number of sides (default 6)").setRequired(false).setMinValue(2).setMaxValue(1000)),
+  async execute(interaction, client) {
+    const sides = interaction.options.getInteger("sides") || 6;
     const result = Math.floor(Math.random() * sides) + 1;
-    const embed = new EmbedBuilder()
-      .setColor(0x00ff41)
-      .setTitle(`Dice Roll (d${sides})`)
-      .setDescription(`You rolled a **${result}**!`)
-      .setTimestamp();
-    await message.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [primaryEmbed(`🎲 Dice Roll (d${sides})`, `You rolled a **${result}**!`)] });
   },
 };

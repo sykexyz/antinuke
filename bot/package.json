@@ -1,0 +1,18 @@
+{
+  "name": "@workspace/sentrix-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js",
+    "build": "echo 'No build needed'"
+  },
+  "dependencies": {
+    "discord.js": "^14.18.0",
+    "pg": "^8.13.1",
+    "dotenv": "^16.5.0",
+    "axios": "^1.7.9",
+    "canvas": "^3.1.0"
+  }
+}

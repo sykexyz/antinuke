@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Sentrix Bot API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: bot
+    description: Bot status and stats
+  - name: commands
+    description: Bot commands
 paths:
   /healthz:
     get:
@@ -24,6 +28,71 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /bot/stats:
+    get:
+      operationId: getBotStats
+      tags: [bot]
+      summary: Get bot statistics
+      description: Returns live stats (server count, user count, uptime, ping, command count, status)
+      responses:
+        "200":
+          description: Bot stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotStats"
+
+  /bot/status:
+    get:
+      operationId: getBotStatus
+      tags: [bot]
+      summary: Get bot online/offline status
+      responses:
+        "200":
+          description: Bot status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotStatus"
+
+  /commands:
+    get:
+      operationId: getCommands
+      tags: [commands]
+      summary: Get all commands
+      description: Returns a list of all bot commands grouped by category
+      responses:
+        "200":
+          description: Command list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Command"
+
+  /commands/{category}:
+    get:
+      operationId: getCommandsByCategory
+      tags: [commands]
+      summary: Get commands by category
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Commands in category
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Command"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +103,52 @@ components:
       required:
         - status
 
+    BotStats:
+      type: object
+      required: [servers, users, commands, uptime, ping, status]
+      properties:
+        servers:
+          type: integer
+        users:
+          type: integer
+        commands:
+          type: integer
+        uptime:
+          type: integer
+          description: Uptime in seconds
+        ping:
+          type: integer
+          description: Bot ping in ms
+        status:
+          type: string
+          enum: [online, idle, dnd, offline]
+
+    BotStatus:
+      type: object
+      required: [online, status]
+      properties:
+        online:
+          type: boolean
+        status:
+          type: string
+
+    Command:
+      type: object
+      required: [name, description, usage, category, ownerOnly]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        usage:
+          type: string
+        category:
+          type: string
+        ownerOnly:
+          type: boolean
+        aliases:
+          type: array
+          items:
+            type: string
+        cooldown:
+          type: ["integer", "null"]

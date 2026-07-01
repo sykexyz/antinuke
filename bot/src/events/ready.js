@@ -15,6 +15,14 @@ export default {
   once: true,
   async execute(client) {
     console.log(`[BOT] Logged in as ${client.user.tag}`);
+
+    try {
+      await client.application.commands.set([]);
+      console.log("[BOT] Cleared all slash commands");
+    } catch (e) {
+      console.error("[BOT] Failed to clear slash commands:", e.message);
+    }
+
     client.user.setPresence({ status: "online", activities: [statuses[0]] });
 
     setInterval(() => {

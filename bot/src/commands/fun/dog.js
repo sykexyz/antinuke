@@ -1,25 +1,29 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { errorEmbed, COLORS } from "../../utils/embed.js";
 
 export default {
   name: "dog",
   description: "Get a random dog image",
-  usage: "!dog",
   category: "fun",
   ownerOnly: false,
-  aliases: [],
   cooldown: 5,
-  async execute(message, args, client, config) {
+  data: new SlashCommandBuilder()
+    .setName("dog")
+    .setDescription("Get a random dog image"),
+  async execute(interaction, client) {
+    await interaction.deferReply();
     try {
       const { default: axios } = await import("axios");
       const res = await axios.get("https://dog.ceo/api/breeds/image/random");
       const embed = new EmbedBuilder()
-        .setColor(0x00ff41)
-        .setTitle("Random Dog 🐶")
+        .setColor(COLORS.primary)
+        .setAuthor({ name: "◆  Random Dog 🐶" })
         .setImage(res.data.message)
+        .setFooter({ text: "SENTRIX" })
         .setTimestamp();
-      await message.reply({ embeds: [embed] });
+      await interaction.editReply({ embeds: [embed] });
     } catch {
-      await message.reply({ embeds: [{ color: 0xff3333, description: "Could not fetch a dog image." }] });
+      await interaction.editReply({ embeds: [errorEmbed("Error", "Could not fetch a dog image.")] });
     }
   },
 };

@@ -1,48 +1,77 @@
-import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import { query } from "../../lib/db.js";
 import { successEmbed, errorEmbed } from "../../utils/embed.js";
 
 export default {
   name: "setup",
   description: "Configure bot settings for this server",
-  usage: "!setup <setting> <value>",
   category: "config",
   ownerOnly: true,
-  aliases: ["config", "set"],
   cooldown: 5,
-  async execute(message, args, client, config) {
-    if (message.author.id !== message.guild.ownerId && !message.member.permissions.has(PermissionFlagsBits.Administrator))
-      return message.reply({ embeds: [errorEmbed("No Permission", "Only the server owner or admins can use setup.")] });
+  data: new SlashCommandBuilder()
+    .setName("setup")
+    .setDescription("Configure bot settings for this server")
+    .addSubcommand(sub =>
+      sub.setName("logchannel").setDescription("Set the log channel")
+        .addChannelOption(opt => opt.setName("channel").setDescription("Log channel").setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName("modlog").setDescription("Set the mod-log channel")
+        .addChannelOption(opt => opt.setName("channel").setDescription("Mod log channel").setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName("welcome").setDescription("Set the welcome channel")
+        .addChannelOption(opt => opt.setName("channel").setDescription("Welcome channel").setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName("leave").setDescription("Set the leave channel")
+        .addChannelOption(opt => opt.setName("channel").setDescription("Leave channel").setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName("levelchannel").setDescription("Set the level-up announcement channel")
+        .addChannelOption(opt => opt.setName("channel").setDescription("Level up channel").setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName("joinrole").setDescription("Set the auto-role for new members")
+        .addRoleOption(opt => opt.setName("role").setDescription("Role to assign on join").setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName("welcomemsg").setDescription("Set a custom welcome message (use {user} and {server})")
+        .addStringOption(opt => opt.setName("message").setDescription("Welcome message text").setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName("leavemsg").setDescription("Set a custom leave message (use {user} and {server})")
+        .addStringOption(opt => opt.setName("message").setDescription("Leave message text").setRequired(true))
+    ),
+  async execute(interaction, client) {
+    if (interaction.user.id !== interaction.guild.ownerId && !interaction.member.permissions.has(PermissionFlagsBits.Administrator))
+      return interaction.reply({ embeds: [errorEmbed("No Permission", "Only the server owner or admins can use setup.")], ephemeral: true });
 
-    const setting = args[0]?.toLowerCase();
-    const value = args.slice(1).join(" ");
+    const sub = interaction.options.getSubcommand();
 
-    const settingMap = {
-      "logchannel": { col: "log_channel", extract: () => message.mentions.channels.first()?.id || args[1] },
-      "modlog": { col: "mod_log_channel", extract: () => message.mentions.channels.first()?.id || args[1] },
-      "welcome": { col: "welcome_channel", extract: () => message.mentions.channels.first()?.id || args[1] },
-      "leave": { col: "leave_channel", extract: () => message.mentions.channels.first()?.id || args[1] },
-      "prefix": { col: "prefix", extract: () => args[1] },
-      "welcomemsg": { col: "welcome_message", extract: () => value },
-      "leavemsg": { col: "leave_message", extract: () => value },
-      "joinrole": { col: "join_role", extract: () => message.mentions.roles.first()?.id || args[1] },
-      "levelchannel": { col: "level_up_channel", extract: () => message.mentions.channels.first()?.id || args[1] },
-    };
-
-    if (!setting || !settingMap[setting]) {
-      const embed = new EmbedBuilder()
-        .setColor(0x00ff41)
-        .setTitle("Setup Options")
-        .setDescription(Object.keys(settingMap).map(k => `\`!setup ${k}\``).join("\n"))
-        .setTimestamp();
-      return message.reply({ embeds: [embed] });
+    const channelSubs = { logchannel: "log_channel", modlog: "mod_log_channel", welcome: "welcome_channel", leave: "leave_channel", levelchannel: "level_up_channel" };
+    if (channelSubs[sub]) {
+      const ch = interaction.options.getChannel("channel");
+      await query(`UPDATE guilds SET ${channelSubs[sub]} = $1 WHERE id = $2`, [ch.id, interaction.guild.id]);
+      return interaction.reply({ embeds: [successEmbed("Updated", `**${sub}** set to ${ch}.`)] });
     }
 
-    const { col, extract } = settingMap[setting];
-    const val = extract();
-    if (!val) return message.reply({ embeds: [errorEmbed("Invalid Value", "Provide a valid value for this setting.")] });
+    if (sub === "joinrole") {
+      const role = interaction.options.getRole("role");
+      await query("UPDATE guilds SET join_role = $1 WHERE id = $2", [role.id, interaction.guild.id]);
+      return interaction.reply({ embeds: [successEmbed("Updated", `Join role set to <@&${role.id}>.`)] });
+    }
 
-    await query(`UPDATE guilds SET ${col} = $1 WHERE id = $2`, [val, message.guild.id]);
-    await message.reply({ embeds: [successEmbed("Updated", `**${setting}** has been set to \`${val}\`.`)] });
+    if (sub === "welcomemsg") {
+      const msg = interaction.options.getString("message");
+      await query("UPDATE guilds SET welcome_message = $1 WHERE id = $2", [msg, interaction.guild.id]);
+      return interaction.reply({ embeds: [successEmbed("Updated", `Welcome message set to:\n> ${msg}`)] });
+    }
+
+    if (sub === "leavemsg") {
+      const msg = interaction.options.getString("message");
+      await query("UPDATE guilds SET leave_message = $1 WHERE id = $2", [msg, interaction.guild.id]);
+      return interaction.reply({ embeds: [successEmbed("Updated", `Leave message set to:\n> ${msg}`)] });
+    }
   },
 };

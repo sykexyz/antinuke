@@ -1,29 +1,40 @@
-import { EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { getMember } from "../../lib/db.js";
 import { xpForLevel } from "../../utils/xp.js";
+import { COLORS } from "../../utils/embed.js";
 
 export default {
   name: "rank",
-  description: "View your XP rank",
-  usage: "!rank [@user]",
+  description: "View your XP rank card",
   category: "leveling",
   ownerOnly: false,
-  aliases: ["xp", "level"],
   cooldown: 5,
-  async execute(message, args, client, config) {
-    const target = message.mentions.members.first() || message.member;
-    const member = await getMember(target.id, message.guild.id);
-    const needed = xpForLevel(member.level || 0);
+  data: new SlashCommandBuilder()
+    .setName("rank")
+    .setDescription("View your XP rank card")
+    .addUserOption(opt => opt.setName("user").setDescription("Target user").setRequired(false)),
+  async execute(interaction, client) {
+    const user = interaction.options.getUser("user") || interaction.user;
+    const target = await interaction.guild.members.fetch(user.id).catch(() => interaction.member);
+    const member = await getMember(target.id, interaction.guild.id);
+    const level = member.level || 0;
+    const xp = member.xp || 0;
+    const needed = xpForLevel(level);
+    const pct = Math.min(100, Math.floor((xp / needed) * 100));
+    const filled = Math.floor(pct / 10);
+    const bar = "▓".repeat(filled) + "░".repeat(10 - filled);
     const embed = new EmbedBuilder()
-      .setColor(0x00ff41)
-      .setTitle(`${target.user.username}'s Rank`)
-      .setThumbnail(target.user.displayAvatarURL({ dynamic: true }))
+      .setColor(COLORS.primary)
+      .setAuthor({ name: `◆  ${user.username}'s Rank`, iconURL: user.displayAvatarURL({ dynamic: true }) })
+      .setThumbnail(user.displayAvatarURL({ dynamic: true }))
+      .setDescription(`\`[${bar}]\` **${pct}%**`)
       .addFields(
-        { name: "Level", value: (member.level || 0).toString(), inline: true },
-        { name: "XP", value: `${member.xp || 0} / ${needed}`, inline: true },
-        { name: "Coins", value: (member.coins || 0).toString(), inline: true },
+        { name: "Level", value: `\`${level}\``, inline: true },
+        { name: "XP", value: `\`${xp} / ${needed}\``, inline: true },
+        { name: "Coins", value: `\`${member.coins || 0}\` 🪙`, inline: true },
       )
+      .setFooter({ text: "SENTRIX" })
       .setTimestamp();
-    await message.reply({ embeds: [embed] });
+    await interaction.reply({ embeds: [embed] });
   },
 };

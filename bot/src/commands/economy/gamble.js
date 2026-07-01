@@ -1,19 +1,23 @@
+import { SlashCommandBuilder } from "discord.js";
 import { successEmbed, errorEmbed } from "../../utils/embed.js";
 import { getMember, query } from "../../lib/db.js";
 
 export default {
   name: "gamble",
-  description: "Gamble your coins",
-  usage: "!gamble <amount|all>",
+  description: "Gamble your coins on the slot machine",
   category: "economy",
   ownerOnly: false,
-  aliases: ["slots", "bet"],
   cooldown: 5,
-  async execute(message, args, client, config) {
-    const member = await getMember(message.author.id, message.guild.id);
-    let amount = args[0] === "all" ? (member.coins || 0) : parseInt(args[0]);
+  data: new SlashCommandBuilder()
+    .setName("gamble")
+    .setDescription("Gamble your coins on the slot machine")
+    .addStringOption(opt => opt.setName("amount").setDescription('Amount to bet or "all"').setRequired(true)),
+  async execute(interaction, client) {
+    const member = await getMember(interaction.user.id, interaction.guild.id);
+    const raw = interaction.options.getString("amount");
+    let amount = raw === "all" ? (member.coins || 0) : parseInt(raw);
     if (!amount || amount <= 0 || amount > (member.coins || 0))
-      return message.reply({ embeds: [errorEmbed("Invalid", `You have **${member.coins || 0}** coins. Bet a valid amount.`)] });
+      return interaction.reply({ embeds: [errorEmbed("Invalid Bet", `You have **${member.coins || 0}** 🪙. Bet a valid amount.`)], ephemeral: true });
 
     const slots = ["🍒", "🍋", "🍊", "🍇", "⭐", "💎"];
     const s1 = slots[Math.floor(Math.random() * slots.length)];
@@ -23,14 +27,15 @@ export default {
     const jackpot = s1 === "💎" && win;
     const winAmount = jackpot ? amount * 5 : win ? amount * 2 : -amount;
 
-    await query("UPDATE members SET coins = coins + $1 WHERE user_id = $2 AND guild_id = $3", [winAmount, message.author.id, message.guild.id]);
+    await query("UPDATE members SET coins = coins + $1 WHERE user_id = $2 AND guild_id = $3", [winAmount, interaction.user.id, interaction.guild.id]);
     const newBal = (member.coins || 0) + winAmount;
+    const slotDisplay = `\`[ ${s1}  ${s2}  ${s3} ]\``;
 
     const embed = jackpot
-      ? successEmbed("JACKPOT!", `[ ${s1} ${s2} ${s3} ]\n\nYou won **${amount * 5}** coins! Balance: **${newBal}**`)
+      ? successEmbed("💎 JACKPOT!", `${slotDisplay}\n\n**◦ Won** — \`${amount * 5}\` 🪙\n**◦ Balance** — \`${newBal}\` 🪙`)
       : win
-        ? successEmbed("Winner!", `[ ${s1} ${s2} ${s3} ]\n\nYou won **${amount}** coins! Balance: **${newBal}**`)
-        : errorEmbed("Lost!", `[ ${s1} ${s2} ${s3} ]\n\nYou lost **${amount}** coins. Balance: **${newBal}**`);
-    await message.reply({ embeds: [embed] });
+        ? successEmbed("🎉 Winner!", `${slotDisplay}\n\n**◦ Won** — \`${amount}\` 🪙\n**◦ Balance** — \`${newBal}\` 🪙`)
+        : errorEmbed("💸 Lost!", `${slotDisplay}\n\n**◦ Lost** — \`${amount}\` 🪙\n**◦ Balance** — \`${newBal}\` 🪙`);
+    await interaction.reply({ embeds: [embed] });
   },
 };

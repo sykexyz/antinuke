@@ -1,23 +1,30 @@
-import { PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import { successEmbed, errorEmbed } from "../../utils/embed.js";
 
 export default {
   name: "createrole",
-  description: "Create a new role",
-  usage: "!createrole <name> [#color]",
+  description: "Create a new role in this server",
   category: "roles",
   ownerOnly: true,
-  aliases: ["newrole"],
   cooldown: 10,
-  async execute(message, args, client, config) {
-    if (!message.member.permissions.has(PermissionFlagsBits.ManageRoles))
-      return message.reply({ embeds: [errorEmbed("No Permission", "You need ManageRoles permission.")] });
+  data: new SlashCommandBuilder()
+    .setName("createrole")
+    .setDescription("Create a new role in this server")
+    .addStringOption(opt => opt.setName("name").setDescription("Role name").setRequired(true))
+    .addStringOption(opt => opt.setName("color").setDescription("Role color (hex, e.g. #7c4dff)").setRequired(false))
+    .addBooleanOption(opt => opt.setName("hoist").setDescription("Show role separately in member list").setRequired(false)),
+  async execute(interaction, client) {
+    if (!interaction.member.permissions.has(PermissionFlagsBits.ManageRoles))
+      return interaction.reply({ embeds: [errorEmbed("No Permission", "You need **Manage Roles** permission.")], ephemeral: true });
 
-    const color = args.find(a => /^#[0-9a-f]{6}$/i.test(a));
-    const name = args.filter(a => a !== color).join(" ");
-    if (!name) return message.reply({ embeds: [errorEmbed("No Name", "Provide a role name.")] });
+    const name = interaction.options.getString("name");
+    const color = interaction.options.getString("color") || "#000000";
+    const hoist = interaction.options.getBoolean("hoist") ?? false;
 
-    const role = await message.guild.roles.create({ name, color: color || "#000000", reason: `Created by ${message.author.tag}` });
-    await message.reply({ embeds: [successEmbed("Role Created", `Created <@&${role.id}> (${role.id})`)] });
+    if (!/^#[0-9a-f]{6}$/i.test(color))
+      return interaction.reply({ embeds: [errorEmbed("Invalid Color", "Provide a valid hex color (e.g. `#7c4dff`).")], ephemeral: true });
+
+    const role = await interaction.guild.roles.create({ name, color, hoist, reason: `Created by ${interaction.user.tag}` });
+    await interaction.reply({ embeds: [successEmbed("Role Created", `Created <@&${role.id}>\n**◦ Name:** ${role.name}\n**◦ Color:** \`${color}\`\n**◦ ID:** \`${role.id}\``)] });
   },
 };

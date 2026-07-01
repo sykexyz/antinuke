@@ -27,6 +27,7 @@ export const guildsTable = pgTable("guilds", {
   xpRate: integer("xp_rate").notNull().default(15),
   levelUpChannel: text("level_up_channel"),
   joinRole: text("join_role"),
+  adminRole: text("admin_role"),
   bypassRoles: jsonb("bypass_roles").$type<string[]>().notNull().default([]),
   trustedBots: jsonb("trusted_bots").$type<string[]>().notNull().default([]),
   language: text("language").notNull().default("en"),

@@ -1,48 +1,60 @@
+import { SlashCommandBuilder } from "discord.js";
 import { isOwner } from "../../utils/permissions.js";
-import { query } from "../../lib/db.js";
-import { successEmbed, errorEmbed } from "../../utils/embed.js";
+import { successEmbed, errorEmbed, infoEmbed } from "../../utils/embed.js";
 
-const guildBlacklist = new Set();
-const userBlacklist = new Set();
-
-export { guildBlacklist, userBlacklist };
+export const guildBlacklist = new Set();
+export const userBlacklist = new Set();
 
 export default {
   name: "blacklist",
   description: "Blacklist a guild or user from using the bot",
-  usage: "!blacklist <guild|user> <add|remove> <id>",
   category: "owner",
   ownerOnly: true,
-  aliases: [],
   cooldown: 3,
-  async execute(message, args, client, config) {
-    if (!isOwner(message.author.id))
-      return message.reply({ embeds: [errorEmbed("Bot Owner Only", "Only the bot owner can use this command.")] });
+  data: new SlashCommandBuilder()
+    .setName("blacklist")
+    .setDescription("Blacklist a guild or user from using the bot")
+    .addSubcommand(sub =>
+      sub.setName("guild")
+        .setDescription("Blacklist a guild")
+        .addStringOption(opt => opt.setName("action").setDescription("add or remove").setRequired(true).addChoices({ name: "add", value: "add" }, { name: "remove", value: "remove" }))
+        .addStringOption(opt => opt.setName("id").setDescription("Guild ID").setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub.setName("user")
+        .setDescription("Blacklist a user")
+        .addStringOption(opt => opt.setName("action").setDescription("add or remove").setRequired(true).addChoices({ name: "add", value: "add" }, { name: "remove", value: "remove" }))
+        .addUserOption(opt => opt.setName("user").setDescription("User to blacklist").setRequired(true))
+    ),
+  async execute(interaction, client) {
+    if (!isOwner(interaction.user.id))
+      return interaction.reply({ embeds: [errorEmbed("Bot Owner Only", "Only the bot owner can use this command.")], ephemeral: true });
 
-    const type = args[0]?.toLowerCase();
-    const action = args[1]?.toLowerCase();
-    const id = args[2];
+    const sub = interaction.options.getSubcommand();
+    const action = interaction.options.getString("action");
 
-    if (!type || !action || !id)
-      return message.reply({ embeds: [errorEmbed("Usage", "!blacklist <guild|user> <add|remove> <id>")] });
-
-    if (type === "guild") {
+    if (sub === "guild") {
+      const id = interaction.options.getString("id");
       if (action === "add") {
         guildBlacklist.add(id);
-        await message.reply({ embeds: [successEmbed("Blacklisted", `Guild \`${id}\` blacklisted.`)] });
+        await interaction.reply({ embeds: [successEmbed("Blacklisted", `Guild \`${id}\` blacklisted.`)] });
         const g = client.guilds.cache.get(id);
         if (g) await g.leave();
       } else {
         guildBlacklist.delete(id);
-        await message.reply({ embeds: [successEmbed("Removed", `Guild \`${id}\` removed from blacklist.`)] });
+        await interaction.reply({ embeds: [successEmbed("Removed", `Guild \`${id}\` removed from blacklist.`)] });
       }
-    } else if (type === "user") {
+      return;
+    }
+
+    if (sub === "user") {
+      const user = interaction.options.getUser("user");
       if (action === "add") {
-        userBlacklist.add(id);
-        await message.reply({ embeds: [successEmbed("Blacklisted", `User \`${id}\` blacklisted.`)] });
+        userBlacklist.add(user.id);
+        await interaction.reply({ embeds: [successEmbed("Blacklisted", `**${user.username}** (\`${user.id}\`) blacklisted.`)] });
       } else {
-        userBlacklist.delete(id);
-        await message.reply({ embeds: [successEmbed("Removed", `User \`${id}\` removed from blacklist.`)] });
+        userBlacklist.delete(user.id);
+        await interaction.reply({ embeds: [successEmbed("Removed", `**${user.username}** removed from blacklist.`)] });
       }
     }
   },

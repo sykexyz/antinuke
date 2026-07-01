@@ -1,5 +1,5 @@
 import { getGuildConfig } from "../lib/db.js";
-import { errorEmbed } from "../utils/embed.js";
+import { errorEmbed, infoEmbed } from "../utils/embed.js";
 import { query } from "../lib/db.js";
 import { EmbedBuilder } from "discord.js";
 
@@ -12,15 +12,36 @@ export default {
       const command = client.commands.get(interaction.commandName);
       if (!command) return;
 
-      // Owner-only check
-      if (command.ownerOnly && interaction.user.id !== interaction.guild?.ownerId) {
-        return interaction.reply({
-          embeds: [errorEmbed("Owner Only", "Only the server owner can use this command.")],
-          ephemeral: true,
-        }).catch(() => {});
+      // ── Permission check ──────────────────────────────────────────────────
+      // ownerOnly commands require: server owner OR configured admin role
+      if (command.ownerOnly) {
+        const isOwner = interaction.user.id === interaction.guild?.ownerId;
+        let hasAdminRole = false;
+
+        if (!isOwner) {
+          try {
+            const config = await getGuildConfig(interaction.guild.id);
+            const adminRole = config.admin_role;
+            if (adminRole) {
+              hasAdminRole = interaction.member.roles.cache.has(adminRole);
+            }
+          } catch {}
+        }
+
+        if (!isOwner && !hasAdminRole) {
+          const config = await getGuildConfig(interaction.guild.id).catch(() => null);
+          const adminRole = config?.admin_role;
+          const hint = adminRole
+            ? `You need the <@&${adminRole}> role to use this command.`
+            : "Only the server owner can use this command. An admin role can be set with `/setrole`.";
+          return interaction.reply({
+            embeds: [errorEmbed("No Permission", hint)],
+            ephemeral: true,
+          }).catch(() => {});
+        }
       }
 
-      // Cooldown check
+      // ── Cooldown check ────────────────────────────────────────────────────
       if (!client.cooldowns.has(command.name)) client.cooldowns.set(command.name, new Map());
       const timestamps = client.cooldowns.get(command.name);
       const cooldown = (command.cooldown || 3) * 1000;

@@ -6,7 +6,24 @@ let pool;
 export async function initDb() {
   pool = new Pool({ connectionString: process.env.DATABASE_URL });
   await pool.query("SELECT 1");
+  await migrateSchema();
   return pool;
+}
+
+async function migrateSchema() {
+  const migrations = [
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS rep INTEGER NOT NULL DEFAULT 0",
+    "ALTER TABLE members ADD COLUMN IF NOT EXISTS bio TEXT",
+    "ALTER TABLE guilds ADD COLUMN IF NOT EXISTS starboard_channel TEXT",
+    "ALTER TABLE guilds ADD COLUMN IF NOT EXISTS starboard_threshold INTEGER NOT NULL DEFAULT 3",
+    "ALTER TABLE guilds ADD COLUMN IF NOT EXISTS confession_channel TEXT",
+    "ALTER TABLE guilds ADD COLUMN IF NOT EXISTS reaction_roles JSONB NOT NULL DEFAULT '[]'",
+    "ALTER TABLE guilds ADD COLUMN IF NOT EXISTS auto_responder JSONB NOT NULL DEFAULT '{}'",
+  ];
+  for (const sql of migrations) {
+    await pool.query(sql).catch(e => console.warn("[DB MIGRATE]", e.message));
+  }
+  console.log("[DB] Schema migrations applied");
 }
 
 export function getDb() {

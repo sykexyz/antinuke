@@ -1,0 +1,5 @@
+[build]
+cmd = "echo 'api-spec: codegen library, not a deployable service'"
+
+[start]
+cmd = "sleep infinity"

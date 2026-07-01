@@ -1,0 +1,5 @@
+[build]
+cmd = "echo 'mockup-sandbox: dev-only UI sandbox, not a deployable service'"
+
+[start]
+cmd = "sleep infinity"

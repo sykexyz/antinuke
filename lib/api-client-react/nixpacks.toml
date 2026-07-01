@@ -1,0 +1,5 @@
+[build]
+cmd = "echo 'api-client-react: generated client library, not a deployable service'"
+
+[start]
+cmd = "sleep infinity"

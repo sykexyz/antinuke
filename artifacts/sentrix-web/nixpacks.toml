@@ -1,0 +1,8 @@
+[variables]
+BASE_PATH = "/"
+
+[build]
+cmd = "pnpm --filter @workspace/sentrix-web run build"
+
+[start]
+cmd = "pnpm --filter @workspace/sentrix-web run serve"

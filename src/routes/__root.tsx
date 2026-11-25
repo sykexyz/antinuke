@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Nav } from "../components/Nav";
 import { LilyCursor } from "../components/LilyCursor";
+import { SongPlayer } from "../components/SongPlayer";
 
 function NotFoundComponent() {
   return (
@@ -135,6 +136,7 @@ function RootComponent() {
       <LilyCursor />
       <Nav />
       <Outlet />
+      <SongPlayer />
     </QueryClientProvider>
   );
 }

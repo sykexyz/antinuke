@@ -1,0 +1,152 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-script: "Pinyon Script", cursive;
+  --font-display: "Syne", sans-serif;
+  --font-sans: "Manrope", sans-serif;
+  --font-mono: "Courier Prime", monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-blood: var(--blood);
+  --color-blood-deep: var(--blood-deep);
+  --color-blood-dim: var(--blood-dim);
+  --color-glass: var(--glass);
+}
+
+:root {
+  --radius: 1rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --blood: oklch(0.5 0.2 22);
+  --blood-deep: oklch(0.36 0.14 20);
+  --blood-dim: oklch(0.5 0.2 22 / 55%);
+  --primary: var(--blood);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.97 0.008 20);
+  --secondary-foreground: oklch(0.2 0 0);
+  --muted: oklch(0.96 0.006 20);
+  --muted-foreground: oklch(0.45 0.02 20);
+  --accent: oklch(0.95 0.03 20);
+  --accent-foreground: var(--blood-deep);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.5 0.2 22 / 18%);
+  --input: oklch(0.5 0.2 22 / 22%);
+  --ring: var(--blood);
+  --glass: oklch(1 0 0 / 55%);
+  --sheen: oklch(1 0 0 / 85%);
+  --metal: linear-gradient(135deg, oklch(1 0 0) 0%, oklch(0.93 0.01 20) 30%, oklch(1 0 0) 48%, oklch(0.88 0.03 20) 70%, oklch(0.99 0 0) 100%);
+  --metal-blood: linear-gradient(135deg, var(--blood-deep), var(--blood) 35%, oklch(0.72 0.17 22) 50%, var(--blood) 65%, var(--blood-deep));
+  --shadow-glass: 0 20px 60px -25px oklch(0.36 0.14 20 / 35%), inset 0 1px 0 oklch(1 0 0 / 80%);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.18 0.005 20);
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.18 0.005 20);
+  --popover-foreground: oklch(0.97 0 0);
+  --blood: oklch(0.6 0.22 22);
+  --blood-dim: oklch(0.6 0.22 22 / 55%);
+  --secondary: oklch(0.22 0.01 20);
+  --secondary-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.22 0.01 20);
+  --muted-foreground: oklch(0.7 0.02 20);
+  --accent: oklch(0.25 0.05 20);
+  --accent-foreground: oklch(0.97 0 0);
+  --border: oklch(0.6 0.22 22 / 25%);
+  --input: oklch(0.6 0.22 22 / 30%);
+  --glass: oklch(0.2 0.01 20 / 55%);
+  --sheen: oklch(1 0 0 / 25%);
+  --metal: linear-gradient(135deg, oklch(0.32 0.01 20), oklch(0.22 0.01 20) 30%, oklch(0.4 0.02 20) 48%, oklch(0.2 0.01 20) 70%, oklch(0.3 0.01 20));
+  --shadow-glass: 0 20px 60px -25px oklch(0 0 0 / 70%), inset 0 1px 0 oklch(1 0 0 / 10%);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    background-image:
+      radial-gradient(60rem 40rem at 85% -10%, var(--blood-dim), transparent 60%),
+      radial-gradient(40rem 30rem at -10% 110%, oklch(0.5 0.2 22 / 18%), transparent 60%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  @media (pointer: fine) {
+    body.lily-cursor, body.lily-cursor * { cursor: none !important; }
+  }
+}
+
+@utility glass {
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-glass);
+}
+
+@utility text-blood-sheen {
+  background: var(--metal-blood);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sheen 7s ease-in-out infinite alternate;
+}
+
+@utility text-shift {
+  background: linear-gradient(90deg, var(--foreground), var(--blood), var(--sheen), var(--blood), var(--foreground));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sheen 9s linear infinite alternate;
+}
+
+.shine { position: relative; overflow: hidden; }
+.shine::after {
+  content: ""; position: absolute; inset: -50% auto -50% -60%; width: 40%;
+  background: linear-gradient(100deg, transparent, var(--sheen), transparent);
+  transform: skewX(-20deg) translateX(0); transition: transform 0.9s ease; pointer-events: none;
+}
+.shine:hover::after { transform: skewX(-20deg) translateX(420%); }
+
+@keyframes sheen { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+@keyframes sway { from { transform: rotate(-8deg) scale(1); } to { transform: rotate(10deg) scale(1.04); } }
+@keyframes pulse-lily { 0%,100% { filter: drop-shadow(0 0 2px var(--blood-dim)); } 50% { filter: drop-shadow(0 0 8px var(--blood)); } }
+@keyframes petal-fall { to { transform: translate(var(--dx), 40px) rotate(160deg); opacity: 0; } }
+
+.lily-sway { animation: sway 6s ease-in-out infinite alternate, pulse-lily 4s ease-in-out infinite; transform-origin: 50% 85%; }
+.petal { position: fixed; pointer-events: none; z-index: 9998; width: 6px; height: 10px; border-radius: 60% 0; background: var(--blood); animation: petal-fall 1.2s ease-out forwards; }

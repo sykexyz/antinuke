@@ -1,0 +1,432 @@
+[
+  {
+    "options": [],
+    "name": "help",
+    "description": "everything rize can do",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "type": 1,
+        "name": "set",
+        "description": "change it",
+        "options": [
+          {
+            "type": 3,
+            "name": "new",
+            "description": "new prefix",
+            "required": true,
+            "max_length": 5
+          }
+        ]
+      }
+    ],
+    "name": "prefix",
+    "description": "message command prefix",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "type": 3,
+        "choices": [
+          {
+            "name": "spam",
+            "value": "spam"
+          },
+          {
+            "name": "link",
+            "value": "link"
+          },
+          {
+            "name": "raid",
+            "value": "raid"
+          },
+          {
+            "name": "nuke",
+            "value": "nuke"
+          },
+          {
+            "name": "thread",
+            "value": "thread"
+          },
+          {
+            "name": "mention",
+            "value": "mention"
+          },
+          {
+            "name": "caps",
+            "value": "caps"
+          },
+          {
+            "name": "zalgo",
+            "value": "zalgo"
+          },
+          {
+            "name": "emoji",
+            "value": "emoji"
+          },
+          {
+            "name": "ghostping",
+            "value": "ghostping"
+          },
+          {
+            "name": "webhook",
+            "value": "webhook"
+          },
+          {
+            "name": "botadd",
+            "value": "botadd"
+          },
+          {
+            "name": "vanity",
+            "value": "vanity"
+          }
+        ],
+        "name": "module",
+        "description": "which one",
+        "required": true
+      },
+      {
+        "type": 3,
+        "choices": [
+          {
+            "name": "on",
+            "value": "on"
+          },
+          {
+            "name": "off",
+            "value": "off"
+          }
+        ],
+        "name": "state",
+        "description": "on or off",
+        "required": true
+      }
+    ],
+    "name": "anti",
+    "description": "turn a protection on or off",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "type": 3,
+        "choices": [
+          {
+            "name": "spam",
+            "value": "spam"
+          },
+          {
+            "name": "link",
+            "value": "link"
+          },
+          {
+            "name": "raid",
+            "value": "raid"
+          },
+          {
+            "name": "nuke",
+            "value": "nuke"
+          },
+          {
+            "name": "thread",
+            "value": "thread"
+          },
+          {
+            "name": "mention",
+            "value": "mention"
+          },
+          {
+            "name": "caps",
+            "value": "caps"
+          },
+          {
+            "name": "zalgo",
+            "value": "zalgo"
+          },
+          {
+            "name": "emoji",
+            "value": "emoji"
+          },
+          {
+            "name": "ghostping",
+            "value": "ghostping"
+          },
+          {
+            "name": "webhook",
+            "value": "webhook"
+          },
+          {
+            "name": "botadd",
+            "value": "botadd"
+          },
+          {
+            "name": "vanity",
+            "value": "vanity"
+          }
+        ],
+        "name": "module",
+        "description": "which anti",
+        "required": true
+      },
+      {
+        "type": 3,
+        "choices": [
+          {
+            "name": "kick",
+            "value": "kick"
+          },
+          {
+            "name": "ban",
+            "value": "ban"
+          },
+          {
+            "name": "xtimeout",
+            "value": "xtimeout"
+          }
+        ],
+        "name": "type",
+        "description": "kick, ban or xtimeout",
+        "required": true
+      }
+    ],
+    "name": "punishment",
+    "description": "what happens when a rule trips",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "type": 1,
+        "name": "stats",
+        "description": "what is on and off",
+        "options": []
+      }
+    ],
+    "name": "antinuke",
+    "description": "protection status",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "type": 2,
+        "name": "role",
+        "description": "the config role",
+        "options": [
+          {
+            "type": 1,
+            "name": "add",
+            "description": "set it",
+            "options": [
+              {
+                "name": "role",
+                "description": "role",
+                "required": true,
+                "type": 8
+              }
+            ]
+          },
+          {
+            "type": 1,
+            "name": "remove",
+            "description": "clear it",
+            "options": []
+          }
+        ]
+      },
+      {
+        "type": 2,
+        "name": "bot",
+        "description": "trusted bots",
+        "options": [
+          {
+            "type": 1,
+            "name": "add",
+            "description": "trust a bot",
+            "options": [
+              {
+                "name": "bot",
+                "description": "bot",
+                "required": true,
+                "type": 6
+              }
+            ]
+          },
+          {
+            "type": 1,
+            "name": "remove",
+            "description": "untrust a bot",
+            "options": [
+              {
+                "name": "bot",
+                "description": "bot",
+                "required": true,
+                "type": 6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": 2,
+        "name": "user",
+        "description": "trusted users",
+        "options": [
+          {
+            "type": 1,
+            "name": "add",
+            "description": "trust someone",
+            "options": [
+              {
+                "name": "user",
+                "description": "user",
+                "required": true,
+                "type": 6
+              }
+            ]
+          },
+          {
+            "type": 1,
+            "name": "remove",
+            "description": "untrust someone",
+            "options": [
+              {
+                "name": "user",
+                "description": "user",
+                "required": true,
+                "type": 6
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": 1,
+        "name": "list",
+        "description": "show the whitelist",
+        "options": []
+      }
+    ],
+    "name": "whitelist",
+    "description": "who rize leaves alone",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "name": "user",
+        "description": "who",
+        "required": true,
+        "type": 6
+      },
+      {
+        "type": 3,
+        "name": "reason",
+        "description": "why",
+        "required": false
+      }
+    ],
+    "name": "kick",
+    "description": "kick someone",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "name": "user",
+        "description": "who",
+        "required": true,
+        "type": 6
+      },
+      {
+        "type": 3,
+        "name": "reason",
+        "description": "why",
+        "required": false
+      }
+    ],
+    "name": "ban",
+    "description": "ban someone",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "name": "user",
+        "description": "who",
+        "required": true,
+        "type": 6
+      },
+      {
+        "type": 3,
+        "name": "reason",
+        "description": "why",
+        "required": false
+      }
+    ],
+    "name": "xtimeout",
+    "description": "5h timeout, no vc, no threads",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "name": "username",
+        "description": "who",
+        "required": true,
+        "type": 6
+      }
+    ],
+    "name": "unpunish",
+    "description": "lift an xtimeout",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "name": "user",
+        "description": "who",
+        "required": false,
+        "type": 6
+      }
+    ],
+    "name": "userinfo",
+    "description": "who someone is here",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [
+      {
+        "name": "user",
+        "description": "who",
+        "required": true,
+        "type": 6
+      }
+    ],
+    "name": "monitor",
+    "description": "live activity for one member",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [],
+    "name": "setup",
+    "description": "make or fix #rize-logs",
+    "dm_permission": false,
+    "type": 1
+  }
+]

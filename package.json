@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev",
-    "build": "vite build",
+    "build": "vite build && (node bot/scripts/register-commands.mjs || true)",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "bot:start": "cd bot && node src/index.js",
+    "bot:install": "cd bot && npm install",
+    "register:commands": "node bot/scripts/register-commands.mjs"
   },
   "overrides": {
     "rolldown": "1.2.1",

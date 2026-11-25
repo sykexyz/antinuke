@@ -5,9 +5,9 @@ import { PlayingCards } from "@/components/PlayingCards";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Rize — add the bot" },
+      { title: "Rize Security Bot" },
       { name: "description", content: "Add Rize to your Discord server. Anti-nuke, anti-raid, xtimeout and per-member monitoring." },
-      { property: "og:title", content: "Rize — add the bot" },
+      { property: "og:title", content: "Rize Security Bot" },
       { property: "og:description", content: "Add Rize to your Discord server. Anti-nuke, anti-raid, xtimeout and per-member monitoring." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

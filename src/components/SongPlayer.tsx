@@ -5,7 +5,8 @@ const TRACK = {
   src: "https://file.garden/aahuG_hIDGRlXD24/Tokyo%20Ghoul%20Opening%20Unravel%20by%20TK%20from%20Ling%20Toshite%20Sigure.mp3",
   title: "Unravel",
   artist: "TK from Ling Tosite Sigure",
-  art: "https://file.garden/aahuG_hIDGRlXD24/b189922eab130325a3995bfa1a3021eb.gif",
+  art: "/rize.gif",
+  fallbackArt: "https://file.garden/aahuG_hIDGRlXD24/b189922eab130325a3995bfa1a3021eb.gif",
 };
 
 function formatTime(sec: number) {
@@ -31,6 +32,87 @@ export function SongPlayer() {
     const isMobile = window.innerWidth < 640;
     if (isMobile) setCollapsed(true);
   }, []);
+
+  // Configure Media Session API for Dynamic Island / Android Now Playing notification
+  useEffect(() => {
+    if (typeof window !== "undefined" && "mediaSession" in navigator) {
+      const origin = window.location.origin;
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: "Rize Security Bot",
+          artist: TRACK.artist,
+          album: "Tokyo Ghoul — Unravel",
+          artwork: [
+            {
+              src: `${origin}/rize.gif`,
+              sizes: "640x360",
+              type: "image/gif",
+            },
+            {
+              src: TRACK.fallbackArt,
+              sizes: "640x360",
+              type: "image/gif",
+            },
+            {
+              src: `${origin}/apple-touch-icon.png`,
+              sizes: "512x512",
+              type: "image/png",
+            },
+            {
+              src: `${origin}/favicon.ico`,
+              sizes: "256x256",
+              type: "image/x-icon",
+            },
+          ],
+        });
+
+        navigator.mediaSession.setActionHandler("play", () => {
+          if (audioRef.current) {
+            audioRef.current.play().catch(() => {});
+          }
+        });
+        navigator.mediaSession.setActionHandler("pause", () => {
+          if (audioRef.current) {
+            audioRef.current.pause();
+          }
+        });
+        navigator.mediaSession.setActionHandler("seekto", (details) => {
+          if (audioRef.current && details.seekTime !== undefined) {
+            audioRef.current.currentTime = details.seekTime;
+            setTime(details.seekTime);
+          }
+        });
+      } catch (err) {
+        console.warn("MediaSession initialization warning:", err);
+      }
+    }
+  }, []);
+
+  // Update Media Session playback state
+  useEffect(() => {
+    if (typeof window !== "undefined" && "mediaSession" in navigator) {
+      navigator.mediaSession.playbackState = playing ? "playing" : "paused";
+    }
+  }, [playing]);
+
+  // Update Media Session playback position
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      "mediaSession" in navigator &&
+      "setPositionState" in navigator.mediaSession &&
+      duration > 0 &&
+      !isNaN(duration)
+    ) {
+      try {
+        navigator.mediaSession.setPositionState({
+          duration: duration,
+          playbackRate: 1,
+          position: Math.min(time, duration),
+        });
+      } catch {}
+    }
+  }, [time, duration]);
 
   // Autoplay handler: muted fallback if browser blocks, unmuted on first interaction
   useEffect(() => {
@@ -194,6 +276,10 @@ export function SongPlayer() {
                   alt="Tokyo Ghoul Unravel"
                   className="h-full w-full object-cover"
                   loading="eager"
+                  onError={(e) => {
+                    // Fallback to external garden url if local file fails
+                    e.currentTarget.src = TRACK.fallbackArt;
+                  }}
                 />
                 {playing && (
                   <span className="absolute inset-0 border border-blood animate-pulse rounded-xl" />

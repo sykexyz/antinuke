@@ -3,9 +3,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/commands")({
   head: () => ({
     meta: [
-      { title: "Rize — protections and commands" },
+      { title: "Rize Security Bot" },
       { name: "description", content: "All 13 protections Rize can run, what sets each one off, and every slash command you need to steer her." },
-      { property: "og:title", content: "Rize — protections and commands" },
+      { property: "og:title", content: "Rize Security Bot" },
       { property: "og:description", content: "All 13 protections Rize can run, what sets each one off, and every slash command you need to steer her." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

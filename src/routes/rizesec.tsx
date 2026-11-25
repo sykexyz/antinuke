@@ -3,9 +3,9 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/rizesec")({
   head: () => ({
     meta: [
-      { title: "RizeSec — how Rize works" },
+      { title: "Rize Security Bot" },
       { name: "description", content: "Who built Rize, what it does, what it needs, and why it's safe to run in your server." },
-      { property: "og:title", content: "RizeSec — how Rize works" },
+      { property: "og:title", content: "Rize Security Bot" },
       { property: "og:description", content: "Who built Rize, what it does, what it needs, and why it's safe to run in your server." },
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },

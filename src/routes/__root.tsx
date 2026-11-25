@@ -78,27 +78,30 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
-    // Replace these placeholders with the app's name and description when first building the app.
-    // Each content route, / included, must still set its own head(). Never add og:image or
-    // twitter:image here: every page without its own would inherit the root's preview image.
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Rize — Discord protection" },
+      { title: "Rize Security Bot" },
       { name: "description", content: "Rize watches your members and stops raids, nukes and spam before they land." },
       { name: "author", content: "Kyle Gaspari" },
-      { property: "og:title", content: "Rize — Discord protection" },
+      { property: "og:title", content: "Rize Security Bot" },
       { property: "og:description", content: "Rize watches your members and stops raids, nukes and spam before they land." },
+      { property: "og:image", content: "/rize.gif" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      
+      { name: "twitter:title", content: "Rize Security Bot" },
+      { name: "twitter:image", content: "/rize.gif" },
+      { name: "theme-color", content: "#8a0018" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", href: "/rize.gif", type: "image/gif" },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "manifest", href: "/site.webmanifest" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -129,6 +132,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    document.title = "Rize Security Bot";
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

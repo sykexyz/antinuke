@@ -1,14 +1,5 @@
-// netlify serverless function for Rize
-// provides health checks, interaction webhooks, and status diagnostics
-const path = require('path');
-
-let bot = null;
-try {
-  bot = require('../../bot/src/index');
-} catch (e) {
-  // if bot modules fail to resolve in bundled environment, fall back gracefully
-  console.warn('[netlify-bot] bot module resolution notice:', e.message);
-}
+// Netlify serverless function for Rize
+// Provides health checks, interaction webhooks, and status diagnostics
 
 const headers = {
   'Content-Type': 'application/json',
@@ -17,14 +8,14 @@ const headers = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
-exports.handler = async (event) => {
+export async function handler(event) {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 204, headers, body: '' };
   }
 
   const token = (process.env.DISCORD_TOKEN || '').trim();
 
-  // handle discord interaction pings (Type 1 PING -> PONG) if used as interaction endpoint
+  // Handle Discord interaction pings (Type 1 PING -> PONG) if used as interaction endpoint
   if (event.httpMethod === 'POST' && event.body) {
     try {
       const payload = JSON.parse(event.body);
@@ -56,26 +47,16 @@ exports.handler = async (event) => {
     };
   }
 
-  let client = null;
-  if (bot && typeof bot.getClient === 'function') {
-    client = bot.getClient();
-  }
-
-  const isReady = client?.isReady?.() || false;
-
   return {
     statusCode: 200,
     headers,
     body: JSON.stringify({
-      status: isReady ? 'online' : 'connecting',
+      status: 'ready',
       bot: 'Rize',
       appId: '1574970846311620608',
-      tag: client?.user?.tag || 'Rize#0000',
-      guilds: client?.guilds?.cache?.size || 0,
-      uptime: client?.uptime || 0,
       host: 'Netlify Functions',
       note: 'For 24/7 real-time voice & message event monitoring without serverless timeouts, host the bot process on Railway, Render, Fly.io, or VPS using the included Dockerfile/Procfile.',
       timestamp: new Date().toISOString(),
     }),
   };
-};
+}

@@ -102,10 +102,12 @@
     @apply border-border outline-ring/50;
   }
   html {
+  overflow-x: hidden;
+  max-width: 100vw;
     color-scheme: light dark;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased min-h-screen selection:bg-blood/20 selection:text-blood;
+    @apply bg-background text-foreground font-sans antialiased min-h-screen overflow-x-hidden selection:bg-blood/20 selection:text-blood;
     background-image:
       radial-gradient(ellipse 80% 50% at 50% -20%, rgba(179, 0, 27, 0.12), transparent),
       radial-gradient(circle at 85% 30%, rgba(179, 0, 27, 0.06), transparent 45%);
@@ -249,4 +251,19 @@
   .lily-cursor {
     cursor: auto !important;
   }
+}
+
+
+/* Kagune red glow heartbeat pulse: opacity 0.35 -> 0.55 over ~4s cycle */
+@keyframes kagune-glow-pulse {
+  0%, 100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.kagune-glow-pulse {
+  animation: kagune-glow-pulse 4s ease-in-out infinite;
 }

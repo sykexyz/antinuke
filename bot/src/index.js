@@ -1,4 +1,5 @@
 require('dotenv').config();
+const http = require('http');
 const { Client, GatewayIntentBits, Partials, Events } = require('discord.js');
 const store = require('./store');
 const anti = require('./anti');
@@ -84,12 +85,43 @@ function createClient() {
 process.on('unhandledRejection', (e) => console.error('[unhandled]', e));
 process.on('uncaughtException', (e) => console.error('[uncaught]', e));
 
+
+let httpServer = null;
+function startHttpServer() {
+  const port = Number(process.env.PORT) || 10000;
+  if (httpServer) return httpServer;
+  httpServer = http.createServer((req, res) => {
+    const url = (req.url || '').split('?')[0];
+    if (url === '/' || url === '/health' || url === '/ping') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(
+        JSON.stringify({
+          status: 'ok',
+          service: 'Rize Security Bot',
+          discord_ready: Boolean(client && client.isReady && client.isReady()),
+          servers: client ? client.guilds?.cache?.size || 0 : 0,
+          uptime_seconds: Math.floor(process.uptime()),
+        })
+      );
+      return;
+    }
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  });
+
+  httpServer.listen(port, '0.0.0.0', () => {
+    console.log(`[rize] health check server listening on port ${port}`);
+  });
+  return httpServer;
+}
+
 let closing = false;
 async function shutdown(sig) {
   if (closing) return;
   closing = true;
   console.log(`[rize] ${sig}, saving and closing`);
   await store.flush();
+  if (httpServer) { try { httpServer.close(); } catch (_) {} }
   if (client) await client.destroy().catch(() => {});
   process.exit(0);
 }
@@ -97,6 +129,7 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 async function start() {
+  startHttpServer();
   if (!token || token.split('.').length !== 3) {
     console.log('[rize] DISCORD_TOKEN is missing or not configured in Netlify environment variables.');
     console.log('[rize] Add DISCORD_TOKEN in Site Settings -> Environment variables to connect the bot.');

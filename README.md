@@ -41,13 +41,14 @@ Discord bots only show as **Online** (with the green status or streaming presenc
 
 ### How to Keep Rize Online 24/7 (Free Options)
 
-#### Option 1: Render.com (Recommended - 1 Click)
+#### Option 1: Render.com (100% Free Web Service)
 1. Go to [render.com](https://render.com) and create a free account.
 2. Click **New +** → **Blueprint**.
 3. Connect your GitHub repository `sykexyz/antinuke`.
 4. Render will detect the included `render.yaml` file automatically.
 5. In the environment variables prompt, enter your `DISCORD_TOKEN`.
-6. Click **Apply**. Render starts the bot worker and keeps it **Online 24/7**!
+6. Click **Apply** (or click **Manual sync** if already on the Blueprint screen). Render builds and starts the free web service!
+7. *Tip:* Add your Render URL (`https://<service-name>.onrender.com/health`) to a free monitor like [uptimerobot.com](https://uptimerobot.com) so it never spins down.
 
 #### Option 2: Railway
 1. Go to [railway.app](https://railway.app) and create a project from your GitHub repo.

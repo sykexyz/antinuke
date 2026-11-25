@@ -358,9 +358,10 @@ const run = {
       `• Rize is currently in ${guildCount} servers, based on this bot session.`,
       '• Verification is submitted by the application owner from the Developer Portal when Discord marks the app eligible. It cannot be added by bot code.',
       '',
-      '**Developer and directory badges**',
+      '**Profile and directory steps**',
+      '• A support invite belongs in the app profile settings; it is not granted by a command.',
+      '• Any source-code label on a bot directory must be requested and approved by that directory.',
       '• The Active Developer badge is retired and can’t currently be earned.',
-      '• Third-party listing badges are issued by each listing site after its own review; they are not Discord badges and cannot be set by Rize.',
       '',
       '*No badge is claimed or guaranteed here. Check the app’s Developer Portal for its current eligibility and available profile labels.*'
     ].join('\n');

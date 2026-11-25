@@ -18,9 +18,9 @@ Rize registers its application commands globally. To register or refresh them, s
 npm run register:commands
 ```
 
-The repo includes 14 slash commands plus two right-click app commands. Discord controls app-profile capability labels; registering commands does not let code force a profile badge. App verification is also a Discord review process, not a bot setting. Check the Developer Portal for Rize's current eligibility and submission steps.
+The repo includes 14 slash commands plus two right-click app commands. Registering commands lets Discord process them, but code cannot force an app-profile label. Discord decides verification eligibility and approval in the Developer Portal. Add a support-server invite in the app profile settings if you want that link shown.
 
-The Active Developer badge has been discontinued by Discord. Third-party directory badges are separate and must be earned through each directory's own listing and review process.
+The Active Developer badge has been discontinued. Source-code labels and other directory badges are separate; submit Rize to the relevant bot directory and follow that site's review process. Rize cannot award those labels itself.
 
 ---
 

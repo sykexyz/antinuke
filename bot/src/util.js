@@ -10,7 +10,8 @@ const GIF = 'https://file.garden/aahuG_hIDGRlXD24/b189922eab130325a3995bfa1a3021
 
 // stickers don't render inline in embeds, so we drop them in emoji-style
 // (discord resolves these when the sticker id is also uploaded as an emoji, otherwise it's still a clear marker)
-const flag = (on) => (on ? `<:on:${STICKER_ON}>` : `<:off:${STICKER_OFF}>`);
+// Sticker IDs cannot be rendered inline in embeds; use reliable status glyphs here.
+const flag = (on) => (on ? '🔴' : '⚪');
 
 const topPos = (member) => member?.roles?.highest?.position ?? 0;
 

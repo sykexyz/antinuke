@@ -1,6 +1,6 @@
 // Netlify serverless function for Rize
-// 1. Serves Discord Interactions Endpoint URL (receives & executes slash commands over HTTP)
-// 2. Registers slash commands via Discord REST API (gives the "/" badge on Discord)
+// 1. Optional Discord Interactions endpoint (requires signature verification)
+// 2. Registers application commands via Discord REST API
 // 3. Provides status and diagnostic health checks
 
 import crypto from 'node:crypto';
@@ -32,7 +32,7 @@ const headers = {
 
 // Ed25519 signature verification for Discord Interactions
 function verifyDiscordSignature(rawBody, signature, timestamp, clientPublicKey) {
-  if (!signature || !timestamp || !clientPublicKey) return true; // bypass if key not supplied
+  if (!signature || !timestamp || !clientPublicKey) return false;
   try {
     const key = crypto.createPublicKey({
       key: Buffer.concat([
@@ -109,13 +109,12 @@ export async function handler(event) {
   // 1. Manual or query-based command registration trigger
   // e.g. GET /api/bot?action=register or POST /api/bot { "action": "register" }
   let requestedAction = query.action;
-  let customToken = query.token || token;
+  const customToken = token;
 
   if (event.httpMethod === 'POST' && event.body) {
     try {
       const parsed = JSON.parse(event.body);
       if (parsed.action) requestedAction = parsed.action;
-      if (parsed.token) customToken = parsed.token;
     } catch {
       // not custom json
     }
@@ -128,7 +127,7 @@ export async function handler(event) {
         headers,
         body: JSON.stringify({
           error: 'Missing token',
-          message: 'Please provide DISCORD_TOKEN in Netlify Environment Variables or pass ?token=YOUR_BOT_TOKEN to register.',
+          message: 'Set DISCORD_TOKEN in Netlify environment variables, then retry.',
         }),
       };
     }
@@ -139,7 +138,7 @@ export async function handler(event) {
       body: JSON.stringify({
         ...result,
         message: result.ok
-          ? `Successfully registered ${result.count} slash commands! Discord / badge is now active.`
+          ? `Registered ${result.count} global application commands. Discord controls app profile labels.`
           : `Failed to register commands: ${result.error}`,
       }),
     };
@@ -150,8 +149,8 @@ export async function handler(event) {
     const sig = event.headers['x-signature-ed25519'] || event.headers['X-Signature-Ed25519'];
     const timestamp = event.headers['x-signature-timestamp'] || event.headers['X-Signature-Timestamp'];
 
-    if (pubKey && !verifyDiscordSignature(event.body, sig, timestamp, pubKey)) {
-      return { statusCode: 401, headers, body: JSON.stringify({ error: 'invalid request signature' }) };
+    if (!pubKey || !verifyDiscordSignature(event.body, sig, timestamp, pubKey)) {
+      return { statusCode: 401, headers, body: JSON.stringify({ error: 'missing public key or invalid request signature' }) };
     }
 
     try {
@@ -253,7 +252,7 @@ export async function handler(event) {
       bot: 'Rize',
       appId: APP_ID,
       tokenConfigured: Boolean(token),
-      slashBadge: 'To register / badge, visit /api/bot?action=register or run during build',
+      commandRegistration: 'Set DISCORD_TOKEN in Netlify and register global application commands.',
       hostingArchitecture: {
         serverless: 'Netlify handles HTTP interactions, website, and slash command registration',
         gatewayWorker: 'Discord 24/7 online presence, voice disconnects & real-time anti-nuke require an always-on host (Render, Railway, Fly.io, or VPS) using the included Dockerfile, Procfile, or render.yaml',

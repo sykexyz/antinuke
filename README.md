@@ -5,50 +5,42 @@ Discord security bot and Tokyo Ghoul red/white marketing site.
 - **Website**: TanStack Start + Vite on Netlify with custom SVG kagune music player, interactive ink-hold button, 3D playing cards, and animated spider lily cursor.
 - **Bot**: discord.js v14 with anti-nuke, anti-raid, 13 protection modules, per-user behavior tracking, and 5-hour `xtimeout`.
 - **Hosting**:
-  - **Netlify**: Hosts the marketing site, serverless HTTP interactions, and instant command registration API (`/.netlify/functions/bot`).
-  - **24/7 Persistent Host**: Keeps the bot **Online** (green streaming presence, real-time voice channel kicks, and anti-nuke) via Render, Railway, Fly.io, or VPS.
+  - **Netlify**: Hosts the marketing site and stateless HTTP interactions.
+  - **Persistent Host**: Runs the Discord Gateway bot process. Choose a host and plan that explicitly supports continuous workers for dependable 24/7 protection.
 
 ---
 
-## 1. Getting the `/` (Slash Commands) Badge
+## 1. Commands and App Profile Labels
 
-To make the `/` badge appear on Discord and enable all 13 slash commands:
+Rize registers its application commands globally. To register or refresh them, set `DISCORD_TOKEN` in the host environment and run:
 
-### Option A: Via Your Netlify Site (Fastest)
-1. In your Netlify dashboard, make sure `DISCORD_TOKEN` is added under **Site configuration → Environment variables**.
-2. Open in your browser:
-   ```
-   https://<your-site-name>.netlify.app/api/bot?action=register
-   ```
-   *(Or if you haven't set Netlify env variables yet: `https://<your-site-name>.netlify.app/api/bot?action=register&token=YOUR_DISCORD_TOKEN`)*
-3. You will receive a JSON response: `Successfully registered 13 slash commands! Discord / badge is now active.`
-
-### Option B: From Terminal / Local
 ```bash
-DISCORD_TOKEN="your_bot_token" npm run register:commands
+npm run register:commands
 ```
 
-Once registered, Discord immediately attaches the `/` badge to Rize's profile and lists commands in all servers.
+The repo includes 14 slash commands plus two right-click app commands. Discord controls app-profile capability labels; registering commands does not let code force a profile badge. App verification is also a Discord review process, not a bot setting. Check the Developer Portal for Rize's current eligibility and submission steps.
+
+The Active Developer badge has been discontinued by Discord. Third-party directory badges are separate and must be earned through each directory's own listing and review process.
 
 ---
 
 ## 2. Why the Bot is Offline on Netlify & How to Make It 24/7 Online
 
 ### Why Netlify Shows the Bot as Offline
-Netlify is a **serverless** platform designed for static sites and on-demand APIs. Serverless functions spin down after execution (max 10–26 seconds). 
+Netlify is a **serverless** platform designed for static sites and on-demand APIs. A function cannot hold Rize's Discord Gateway connection open between requests.
 
 Discord bots only show as **Online** (with the green status or streaming presence) when there is an active, continuous **WebSocket connection** to the Discord Gateway (`wss://gateway.discord.gg`). Real-time features (auto-disconnecting voice channels on `xtimeout`, anti-raid join detection, message rate spam blocking) require this persistent connection.
 
-### How to Keep Rize Online 24/7 (Free Options)
+### Hosting options (uptime depends on the host and plan)
 
-#### Option 1: Render.com (100% Free Web Service)
+#### Option 1: Render Free Web Service (may sleep)
 1. Go to [render.com](https://render.com) and create a free account.
 2. Click **New +** → **Blueprint**.
 3. Connect your GitHub repository `sykexyz/antinuke`.
 4. Render will detect the included `render.yaml` file automatically.
 5. In the environment variables prompt, enter your `DISCORD_TOKEN`.
 6. Click **Apply** (or click **Manual sync** if already on the Blueprint screen). Render builds and starts the free web service!
-7. *Tip:* Add your Render URL (`https://<service-name>.onrender.com/health`) to a free monitor like [uptimerobot.com](https://uptimerobot.com) so it never spins down.
+7. *Note:* Render Free Web Services can sleep after inactivity. A health check or external ping is not a guarantee of continuous bot uptime. Use a plan or host that explicitly provides an always-on process for 24/7 protection.
 
 #### Option 2: Railway
 1. Go to [railway.app](https://railway.app) and create a project from your GitHub repo.
@@ -74,11 +66,7 @@ Make sure these settings are configured at [discord.com/developers/applications/
    - [x] **Presence Intent** (required for rotating streaming status)
    - [x] **Server Members Intent** (required for tracking, role hierarchy, anti-raid)
    - [x] **Message Content Intent** (required for message spam, link detection, anti-ghostping)
-2. **Interactions Endpoint URL** (optional, under **General Information**):
-   ```
-   https://<your-site-name>.netlify.app/api/bot
-   ```
-   When configured, slash commands can be served directly by Netlify over HTTP!
+2. Leave **Interactions Endpoint URL** unset when Rize is connected through its persistent Gateway host. Setting a separate webhook endpoint routes interactions away from the bot process and bypasses its interactive paginated help menu.
 
 ---
 

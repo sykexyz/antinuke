@@ -1,4 +1,4 @@
-// Registers Rize slash commands to Discord REST API globally
+// Registers Rize application commands to Discord REST API globally
 // Can be run during build, via CLI, or triggered on deploy
 
 import fs from 'node:fs';
@@ -32,7 +32,7 @@ export async function registerCommands(customToken) {
   }
 
   const url = `https://discord.com/api/v10/applications/${APP_ID}/commands`;
-  console.log(`[rize] Registering ${commands.length} slash commands to Discord (Application ID: ${APP_ID})...`);
+  console.log(`[rize] Registering ${commands.length} global application commands (Application ID: ${APP_ID})...`);
 
   try {
     const res = await fetch(url, {
@@ -51,8 +51,8 @@ export async function registerCommands(customToken) {
     }
 
     const data = await res.json();
-    console.log(`[rize] SUCCESS! Registered ${data.length} global slash commands with Discord.`);
-    console.log('[rize] Discord / badge ("Supports Commands") is now active for Rize!');
+    console.log(`[rize] Registered ${data.length} global application commands with Discord.`);
+    console.log('[rize] Profile labels are controlled by Discord and may take time to update.');
     return { ok: true, count: data.length, commands: data.map((c) => c.name) };
   } catch (e) {
     console.error('[rize] Network error while registering commands:', e.message);

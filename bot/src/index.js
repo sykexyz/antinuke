@@ -47,15 +47,17 @@ function createClient() {
   });
 
   client.on(Events.InteractionCreate, async (i) => {
-    if (!i.isChatInputCommand()) return;
-    const fn = cmds.run[i.commandName];
-    if (!fn) return;
     try {
+      if (i.isUserContextMenuCommand()) return await cmds.runUserContext(i);
+      if (i.isMessageContextMenuCommand()) return await cmds.runMessageContext(i);
+      if (!i.isChatInputCommand()) return;
+      const fn = cmds.run[i.commandName];
+      if (!fn) return;
       await fn(cmds.fromSlash(i));
     } catch (e) {
-      console.error(`[cmd ${i.commandName}]`, e);
-      const p = { content: 'something broke on my end. try again.', ephemeral: true };
-      (i.replied || i.deferred ? i.followUp(p) : i.reply(p)).catch(() => {});
+      console.error(`[interaction ${i.commandName || i.commandType}]`, e);
+      const payload = { content: 'Rize hit an internal error. Try again in a moment.', ephemeral: true };
+      (i.replied || i.deferred ? i.followUp(payload) : i.reply(payload)).catch(() => {});
     }
   });
 

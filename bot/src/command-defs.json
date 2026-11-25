@@ -2,7 +2,7 @@
   {
     "options": [],
     "name": "help",
-    "description": "everything rize can do",
+    "description": "Interactive Rize defense command console",
     "dm_permission": false,
     "type": 1
   },
@@ -11,12 +11,12 @@
       {
         "type": 1,
         "name": "set",
-        "description": "change it",
+        "description": "Set new prefix",
         "options": [
           {
             "type": 3,
             "name": "new",
-            "description": "new prefix",
+            "description": "1-5 characters",
             "required": true,
             "max_length": 5
           }
@@ -24,7 +24,7 @@
       }
     ],
     "name": "prefix",
-    "description": "message command prefix",
+    "description": "Configure custom message-command prefix",
     "dm_permission": false,
     "type": 1
   },
@@ -87,7 +87,7 @@
           }
         ],
         "name": "module",
-        "description": "which one",
+        "description": "Protection module",
         "required": true
       },
       {
@@ -103,12 +103,12 @@
           }
         ],
         "name": "state",
-        "description": "on or off",
+        "description": "Armed state",
         "required": true
       }
     ],
     "name": "anti",
-    "description": "turn a protection on or off",
+    "description": "Toggle a protection module",
     "dm_permission": false,
     "type": 1
   },
@@ -171,7 +171,7 @@
           }
         ],
         "name": "module",
-        "description": "which anti",
+        "description": "Protection module",
         "required": true
       },
       {
@@ -191,12 +191,12 @@
           }
         ],
         "name": "type",
-        "description": "kick, ban or xtimeout",
+        "description": "Sanction action",
         "required": true
       }
     ],
     "name": "punishment",
-    "description": "what happens when a rule trips",
+    "description": "Configure automated sanction per rule",
     "dm_permission": false,
     "type": 1
   },
@@ -205,12 +205,12 @@
       {
         "type": 1,
         "name": "stats",
-        "description": "what is on and off",
+        "description": "Display armed protection status",
         "options": []
       }
     ],
     "name": "antinuke",
-    "description": "protection status",
+    "description": "Inspect defense module status",
     "dm_permission": false,
     "type": 1
   },
@@ -219,16 +219,16 @@
       {
         "type": 2,
         "name": "role",
-        "description": "the config role",
+        "description": "Whitelist management role",
         "options": [
           {
             "type": 1,
             "name": "add",
-            "description": "set it",
+            "description": "Designate config role",
             "options": [
               {
                 "name": "role",
-                "description": "role",
+                "description": "Role",
                 "required": true,
                 "type": 8
               }
@@ -237,7 +237,7 @@
           {
             "type": 1,
             "name": "remove",
-            "description": "clear it",
+            "description": "Clear designated config role",
             "options": []
           }
         ]
@@ -245,16 +245,16 @@
       {
         "type": 2,
         "name": "bot",
-        "description": "trusted bots",
+        "description": "Trusted bot integrations",
         "options": [
           {
             "type": 1,
             "name": "add",
-            "description": "trust a bot",
+            "description": "Exempt bot",
             "options": [
               {
                 "name": "bot",
-                "description": "bot",
+                "description": "Bot",
                 "required": true,
                 "type": 6
               }
@@ -263,11 +263,11 @@
           {
             "type": 1,
             "name": "remove",
-            "description": "untrust a bot",
+            "description": "Revoke bot exemption",
             "options": [
               {
                 "name": "bot",
-                "description": "bot",
+                "description": "Bot",
                 "required": true,
                 "type": 6
               }
@@ -278,16 +278,16 @@
       {
         "type": 2,
         "name": "user",
-        "description": "trusted users",
+        "description": "Trusted users",
         "options": [
           {
             "type": 1,
             "name": "add",
-            "description": "trust someone",
+            "description": "Exempt user",
             "options": [
               {
                 "name": "user",
-                "description": "user",
+                "description": "User",
                 "required": true,
                 "type": 6
               }
@@ -296,11 +296,11 @@
           {
             "type": 1,
             "name": "remove",
-            "description": "untrust someone",
+            "description": "Revoke user exemption",
             "options": [
               {
                 "name": "user",
-                "description": "user",
+                "description": "User",
                 "required": true,
                 "type": 6
               }
@@ -311,12 +311,12 @@
       {
         "type": 1,
         "name": "list",
-        "description": "show the whitelist",
+        "description": "View complete whitelist",
         "options": []
       }
     ],
     "name": "whitelist",
-    "description": "who rize leaves alone",
+    "description": "Manage trusted roles, bots and users",
     "dm_permission": false,
     "type": 1
   },
@@ -324,19 +324,19 @@
     "options": [
       {
         "name": "user",
-        "description": "who",
+        "description": "Target member",
         "required": true,
         "type": 6
       },
       {
         "type": 3,
         "name": "reason",
-        "description": "why",
+        "description": "Reason",
         "required": false
       }
     ],
     "name": "kick",
-    "description": "kick someone",
+    "description": "KICK a server member",
     "dm_permission": false,
     "type": 1
   },
@@ -344,19 +344,19 @@
     "options": [
       {
         "name": "user",
-        "description": "who",
+        "description": "Target member",
         "required": true,
         "type": 6
       },
       {
         "type": 3,
         "name": "reason",
-        "description": "why",
+        "description": "Reason",
         "required": false
       }
     ],
     "name": "ban",
-    "description": "ban someone",
+    "description": "BAN a server member",
     "dm_permission": false,
     "type": 1
   },
@@ -364,19 +364,19 @@
     "options": [
       {
         "name": "user",
-        "description": "who",
+        "description": "Target member",
         "required": true,
         "type": 6
       },
       {
         "type": 3,
         "name": "reason",
-        "description": "why",
+        "description": "Reason",
         "required": false
       }
     ],
     "name": "xtimeout",
-    "description": "5h timeout, no vc, no threads",
+    "description": "5h timeout, voice lock and thread suppression",
     "dm_permission": false,
     "type": 1
   },
@@ -384,13 +384,13 @@
     "options": [
       {
         "name": "username",
-        "description": "who",
+        "description": "Target member",
         "required": true,
         "type": 6
       }
     ],
     "name": "unpunish",
-    "description": "lift an xtimeout",
+    "description": "Revoke an active X-Timeout sanction",
     "dm_permission": false,
     "type": 1
   },
@@ -398,13 +398,13 @@
     "options": [
       {
         "name": "user",
-        "description": "who",
+        "description": "Target member",
         "required": false,
         "type": 6
       }
     ],
     "name": "userinfo",
-    "description": "who someone is here",
+    "description": "View a member security dossier",
     "dm_permission": false,
     "type": 1
   },
@@ -412,21 +412,38 @@
     "options": [
       {
         "name": "user",
-        "description": "who",
+        "description": "Target member",
         "required": true,
         "type": 6
       }
     ],
     "name": "monitor",
-    "description": "live activity for one member",
+    "description": "View member activity telemetry",
     "dm_permission": false,
     "type": 1
   },
   {
     "options": [],
     "name": "setup",
-    "description": "make or fix #rize-logs",
+    "description": "Create or repair private #rize-logs",
     "dm_permission": false,
     "type": 1
+  },
+  {
+    "options": [],
+    "name": "badges",
+    "description": "View badge eligibility and official claim steps",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "name": "Rize: Security Check",
+    "type": 2,
+    "dm_permission": false
+  },
+  {
+    "name": "Rize: Scan Message",
+    "type": 3,
+    "dm_permission": false
   }
 ]

@@ -40,113 +40,213 @@
 
 :root {
   --radius: 1rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --blood: oklch(0.5 0.2 22);
-  --blood-deep: oklch(0.36 0.14 20);
-  --blood-dim: oklch(0.5 0.2 22 / 55%);
-  --primary: var(--blood);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.97 0.008 20);
-  --secondary-foreground: oklch(0.2 0 0);
-  --muted: oklch(0.96 0.006 20);
-  --muted-foreground: oklch(0.45 0.02 20);
-  --accent: oklch(0.95 0.03 20);
-  --accent-foreground: var(--blood-deep);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.5 0.2 22 / 18%);
-  --input: oklch(0.5 0.2 22 / 22%);
-  --ring: var(--blood);
-  --glass: oklch(1 0 0 / 55%);
-  --sheen: oklch(1 0 0 / 85%);
-  --metal: linear-gradient(135deg, oklch(1 0 0) 0%, oklch(0.93 0.01 20) 30%, oklch(1 0 0) 48%, oklch(0.88 0.03 20) 70%, oklch(0.99 0 0) 100%);
-  --metal-blood: linear-gradient(135deg, var(--blood-deep), var(--blood) 35%, oklch(0.72 0.17 22) 50%, var(--blood) 65%, var(--blood-deep));
-  --shadow-glass: 0 20px 60px -25px oklch(0.36 0.14 20 / 35%), inset 0 1px 0 oklch(1 0 0 / 80%);
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --blood: #B3001B;
+  --blood-deep: #7a0012;
+  --blood-dim: rgba(179, 0, 27, 0.55);
+  --primary: #B3001B;
+  --primary-foreground: #ffffff;
+  --secondary: #f9f6f6;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f4efef;
+  --muted-foreground: #665c5c;
+  --accent: #fae8ea;
+  --accent-foreground: #7a0012;
+  --destructive: #B3001B;
+  --destructive-foreground: #ffffff;
+  --border: rgba(179, 0, 27, 0.18);
+  --input: rgba(179, 0, 27, 0.22);
+  --ring: #B3001B;
+  --glass: rgba(255, 255, 255, 0.65);
+  --sheen: rgba(255, 255, 255, 0.85);
+  --metal: linear-gradient(135deg, #ffffff 0%, #f6ebeb 30%, #ffffff 48%, #eed8d9 70%, #ffffff 100%);
+  --metal-blood: linear-gradient(135deg, #7a0012, #B3001B 35%, #ff5a6e 50%, #B3001B 65%, #7a0012);
+  --shadow-glass: 0 20px 60px -25px rgba(122, 0, 18, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.97 0 0);
-  --card: oklch(0.18 0.005 20);
-  --card-foreground: oklch(0.97 0 0);
-  --popover: oklch(0.18 0.005 20);
-  --popover-foreground: oklch(0.97 0 0);
-  --blood: oklch(0.6 0.22 22);
-  --blood-dim: oklch(0.6 0.22 22 / 55%);
-  --secondary: oklch(0.22 0.01 20);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.22 0.01 20);
-  --muted-foreground: oklch(0.7 0.02 20);
-  --accent: oklch(0.25 0.05 20);
-  --accent-foreground: oklch(0.97 0 0);
-  --border: oklch(0.6 0.22 22 / 25%);
-  --input: oklch(0.6 0.22 22 / 30%);
-  --glass: oklch(0.2 0.01 20 / 55%);
-  --sheen: oklch(1 0 0 / 25%);
-  --metal: linear-gradient(135deg, oklch(0.32 0.01 20), oklch(0.22 0.01 20) 30%, oklch(0.4 0.02 20) 48%, oklch(0.2 0.01 20) 70%, oklch(0.3 0.01 20));
-  --shadow-glass: 0 20px 60px -25px oklch(0 0 0 / 70%), inset 0 1px 0 oklch(1 0 0 / 10%);
+  --background: #0a0a0a;
+  --foreground: #f4f4f4;
+  --card: #121010;
+  --card-foreground: #f4f4f4;
+  --popover: #121010;
+  --popover-foreground: #f4f4f4;
+  --blood: #E01E37;
+  --blood-deep: #7a0012;
+  --blood-dim: rgba(224, 30, 55, 0.55);
+  --primary: #E01E37;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1616;
+  --secondary-foreground: #f4f4f4;
+  --muted: #1c1818;
+  --muted-foreground: #a39696;
+  --accent: #260d10;
+  --accent-foreground: #f4f4f4;
+  --border: rgba(224, 30, 55, 0.25);
+  --input: rgba(224, 30, 55, 0.30);
+  --ring: #E01E37;
+  --glass: rgba(15, 12, 12, 0.7);
+  --sheen: rgba(255, 255, 255, 0.25);
+  --metal: linear-gradient(135deg, #2a2021, #161213 30%, #362224 48%, #141011 70%, #251c1d);
+  --metal-blood: linear-gradient(135deg, #7a0012, #E01E37 35%, #ff5a6e 50%, #E01E37 65%, #7a0012);
+  --shadow-glass: 0 20px 60px -25px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html { scroll-behavior: smooth; }
-  body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    font-family: var(--font-sans);
-    background-image:
-      radial-gradient(60rem 40rem at 85% -10%, var(--blood-dim), transparent 60%),
-      radial-gradient(40rem 30rem at -10% 110%, oklch(0.5 0.2 22 / 18%), transparent 60%);
-    background-attachment: fixed;
-    min-height: 100vh;
+  * {
+    @apply border-border outline-ring/50;
   }
-  @media (pointer: fine) {
-    body.lily-cursor, body.lily-cursor * { cursor: none !important; }
+  html {
+    color-scheme: light dark;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased min-h-screen selection:bg-blood/20 selection:text-blood;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(179, 0, 27, 0.12), transparent),
+      radial-gradient(circle at 85% 30%, rgba(179, 0, 27, 0.06), transparent 45%);
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(224, 30, 55, 0.18), transparent),
+      radial-gradient(circle at 85% 30%, rgba(224, 30, 55, 0.08), transparent 45%);
+    background-attachment: fixed;
   }
 }
 
-@utility glass {
+/* Glass panel */
+.glass {
   background: var(--glass);
-  backdrop-filter: blur(18px) saturate(140%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-glass);
 }
 
-@utility text-blood-sheen {
-  background: var(--metal-blood);
-  background-size: 250% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: sheen 7s ease-in-out infinite alternate;
+/* Shine effect on hover */
+.shine {
+  position: relative;
+  overflow: hidden;
 }
-
-@utility text-shift {
-  background: linear-gradient(90deg, var(--foreground), var(--blood), var(--sheen), var(--blood), var(--foreground));
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: sheen 9s linear infinite alternate;
-}
-
-.shine { position: relative; overflow: hidden; }
 .shine::after {
-  content: ""; position: absolute; inset: -50% auto -50% -60%; width: 40%;
-  background: linear-gradient(100deg, transparent, var(--sheen), transparent);
-  transform: skewX(-20deg) translateX(0); transition: transform 0.9s ease; pointer-events: none;
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.75s ease;
+  pointer-events: none;
 }
-.shine:hover::after { transform: skewX(-20deg) translateX(420%); }
+.shine:hover::after {
+  transform: translateX(100%);
+}
 
-@keyframes sheen { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
-@keyframes sway { from { transform: rotate(-8deg) scale(1); } to { transform: rotate(10deg) scale(1.04); } }
-@keyframes pulse-lily { 0%,100% { filter: drop-shadow(0 0 2px var(--blood-dim)); } 50% { filter: drop-shadow(0 0 8px var(--blood)); } }
-@keyframes petal-fall { to { transform: translate(var(--dx), 40px) rotate(160deg); opacity: 0; } }
+/* Text sheen gradient */
+.text-blood-sheen {
+  background: linear-gradient(135deg, var(--blood-deep) 0%, var(--blood) 40%, #ff5a6e 65%, var(--blood-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
 
-.lily-sway { animation: sway 6s ease-in-out infinite alternate, pulse-lily 4s ease-in-out infinite; transform-origin: 50% 85%; }
-.petal { position: fixed; pointer-events: none; z-index: 9998; width: 6px; height: 10px; border-radius: 60% 0; background: var(--blood); animation: petal-fall 1.2s ease-out forwards; }
+/* Spider Lily sway animation */
+@keyframes lily-sway {
+  0% {
+    transform: rotate(-6deg) scale(0.98);
+  }
+  50% {
+    transform: rotate(6deg) scale(1.02);
+  }
+  100% {
+    transform: rotate(-6deg) scale(0.98);
+  }
+}
+
+.lily-sway {
+  animation: lily-sway 6s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+/* Petal particles from cursor */
+.petal {
+  position: fixed;
+  pointer-events: none;
+  width: 7px;
+  height: 11px;
+  background: linear-gradient(135deg, var(--blood) 0%, #ff5a6e 100%);
+  border-radius: 50% 0 50% 50%;
+  transform-origin: center;
+  z-index: 9998;
+  animation: petal-fall 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes petal-fall {
+  0% {
+    opacity: 0.9;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 15px), 45px) rotate(180deg) scale(0.4);
+  }
+}
+
+/* Shifting reflective color for < \ > icon */
+@keyframes text-shift {
+  0%, 100% {
+    color: var(--foreground);
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    color: var(--blood);
+    text-shadow: 0 0 8px var(--blood);
+  }
+}
+
+.text-shift {
+  animation: text-shift 4.5s ease-in-out infinite;
+}
+
+/* Kagune organic undulation & breathing */
+@keyframes kagune-breathe {
+  0%, 100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.02) rotate(0.8deg);
+  }
+}
+
+.kagune-breathe {
+  animation: kagune-breathe 5s ease-in-out infinite;
+  transform-origin: 90% 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lily-sway,
+  .petal,
+  .text-shift,
+  .kagune-breathe {
+    animation: none !important;
+  }
+}
+
+/* Hide custom cursor on coarse touch screens */
+@media (pointer: coarse) {
+  .lily-cursor {
+    cursor: auto !important;
+  }
+}

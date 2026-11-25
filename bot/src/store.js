@@ -1,14 +1,15 @@
-// tiny storage layer. json file by default, mongo if MONGO_URI is set.
-// everything lives in memory and gets flushed - good enough for a bot this size
+// in-memory store with cold-start rehydration.
+// writes to disk only when writable; never crashes on read-only serverless hosts.
+// if MONGO_URI is set, syncs with mongo.
 const fs = require('fs');
 const path = require('path');
 
-const FILE = path.join(__dirname, '..', 'data', 'db.json');
 const ANTIS = ['spam', 'link', 'raid', 'nuke', 'thread', 'mention', 'caps', 'zalgo', 'emoji', 'ghostping', 'webhook', 'botadd', 'vanity'];
 
-let db = { guilds: {}, xtimeouts: {} };
+let db = { guilds: {}, xtimeouts: {}, violations: {} };
 let mongoCol = null;
 let saveTimer = null;
+let writablePath = null;
 
 function freshGuild() {
   const anti = {};
@@ -21,6 +22,25 @@ function freshGuild() {
   };
 }
 
+function resolvePath() {
+  // test whether local folder or /tmp is writable
+  const candidates = [
+    path.join(__dirname, '..', 'data', 'db.json'),
+    path.join('/tmp', 'rize-db.json'),
+  ];
+  for (const p of candidates) {
+    try {
+      const dir = path.dirname(p);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.accessSync(dir, fs.constants.W_OK);
+      return p;
+    } catch {
+      // not writable, try next
+    }
+  }
+  return null;
+}
+
 async function load() {
   const uri = process.env.MONGO_URI;
   if (uri) {
@@ -30,22 +50,35 @@ async function load() {
       await c.connect();
       mongoCol = c.db().collection('rize');
       const doc = await mongoCol.findOne({ _id: 'state' });
-      if (doc) db = { guilds: doc.guilds || {}, xtimeouts: doc.xtimeouts || {} };
-      console.log('[store] using mongo');
+      if (doc) {
+        db = {
+          guilds: doc.guilds || {},
+          xtimeouts: doc.xtimeouts || {},
+          violations: doc.violations || {},
+        };
+      }
+      console.log('[store] synced with mongo');
       return;
     } catch (e) {
-      console.warn('[store] mongo failed, falling back to json:', e.message);
+      console.warn('[store] mongo connection failed, falling back to memory/local:', e.message);
       mongoCol = null;
     }
   }
-  try {
-    if (fs.existsSync(FILE)) db = JSON.parse(fs.readFileSync(FILE, 'utf8'));
-    db.guilds ??= {};
-    db.xtimeouts ??= {};
-  } catch (e) {
-    console.warn('[store] db.json is busted, starting clean', e.message);
+
+  writablePath = resolvePath();
+  if (writablePath && fs.existsSync(writablePath)) {
+    try {
+      const parsed = JSON.parse(fs.readFileSync(writablePath, 'utf8'));
+      db.guilds = parsed.guilds || {};
+      db.xtimeouts = parsed.xtimeouts || {};
+      db.violations = parsed.violations || {};
+      console.log(`[store] rehydrated from ${writablePath}`);
+      return;
+    } catch (e) {
+      console.warn('[store] cached state file unreadable, starting in-memory:', e.message);
+    }
   }
-  console.log('[store] using local json');
+  console.log('[store] running in-memory cache');
 }
 
 function save() {
@@ -57,13 +90,18 @@ async function flush() {
   try {
     if (mongoCol) {
       await mongoCol.updateOne({ _id: 'state' }, { $set: db }, { upsert: true });
-    } else {
-      fs.mkdirSync(path.dirname(FILE), { recursive: true });
-      fs.writeFileSync(FILE + '.tmp', JSON.stringify(db, null, 1));
-      fs.renameSync(FILE + '.tmp', FILE);
+      return;
+    }
+    if (!writablePath) writablePath = resolvePath();
+    if (writablePath) {
+      const dir = path.dirname(writablePath);
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(writablePath + '.tmp', JSON.stringify(db, null, 1));
+      fs.renameSync(writablePath + '.tmp', writablePath);
     }
   } catch (e) {
-    console.error('[store] save failed', e);
+    // on read-only environments (e.g. netlify lambdas), keep state in-memory quietly
+    writablePath = null;
   }
 }
 
@@ -73,7 +111,7 @@ function guild(id) {
     save();
   }
   const g = db.guilds[id];
-  // new antis added later shouldn't break old configs
+  // ensure all anti keys exist
   for (const a of ANTIS) g.anti[a] ??= { on: false, punish: 'xtimeout' };
   return g;
 }

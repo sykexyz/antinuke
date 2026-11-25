@@ -9,7 +9,7 @@ const ANTIS = store.ANTIS;
 const antiChoices = ANTIS.map((a) => ({ name: a, value: a }));
 const punChoices = ['kick', 'ban', 'xtimeout'].map((p) => ({ name: p, value: p }));
 
-// ---- slash definitions
+// slash definitions
 const defs = [
   new SlashCommandBuilder().setName('help').setDescription('everything rize can do'),
   new SlashCommandBuilder().setName('prefix').setDescription('message command prefix')
@@ -57,8 +57,8 @@ const HELP = [
   ['/whitelist bot', 'trusted bots'],
   ['/whitelist user', 'trusted users'],
   ['/whitelist list', 'show all of it'],
-  ['/kick', 'kick'],
-  ['/ban', 'ban'],
+  ['/kick', 'kick someone'],
+  ['/ban', 'ban someone'],
   ['/xtimeout', '5h mute, vc kicks, thread wipes'],
   ['/unpunish', 'lift an xtimeout'],
   ['/userinfo', 'member card'],
@@ -73,10 +73,9 @@ const fmtMs = (ms) => {
   return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h ${m % 60}m`;
 };
 
-// ---- handlers. ctx is the same shape for slash + prefix
 const run = {
   async help(ctx) {
-    const lines = HELP.map(([c, d]) => `${EMOJI} \`${c}\` — ${d}`);
+    const lines = HELP.map(([c, d]) => `${EMOJI} ${c} — ${d}`);
     const cfg = store.guild(ctx.guild.id);
     return ctx.reply({ embeds: [embed('Rize', lines.join('\n')).addFields({ name: 'prefix', value: `\`${cfg.prefix}\` for message commands, slash always works` })] });
   },
@@ -140,7 +139,6 @@ const run = {
     }
 
     if (group === 'role') {
-      // only owner or someone above the bot gets to hand out config access
       if (ctx.member.id !== ctx.guild.ownerId && topPos(ctx.member) <= topPos(ctx.guild.members.me)) return no(ctx, 'only the owner or someone above me can change the whitelist role.');
       if (sub === 'add') {
         const role = ctx.role('role');
@@ -173,7 +171,6 @@ const run = {
     const u = ctx.user('username');
     const m = u && (await ctx.guild.members.fetch(u.id).catch(() => null));
     if (!m) return ctx.reply({ embeds: [embed('unpunish', 'who?')] });
-    // has to outrank the punished person, no exceptions besides the owner
     if (ctx.member.id !== ctx.guild.ownerId && topPos(ctx.member) <= topPos(m)) return no(ctx, 'you need a role higher than theirs.');
     if (!isX(ctx.guild.id, m.id)) return ctx.reply({ embeds: [embed('unpunish', `${m} isn't under xtimeout`)] });
     clearX(ctx.guild.id, m.id);
@@ -243,7 +240,6 @@ async function manual(ctx, type) {
   return ctx.reply({ embeds: [embed(type, `${m.user.tag} handled. ${type === 'xtimeout' ? '5h, no vc, no threads.' : ''}`)] });
 }
 
-// ---- adapters
 function fromSlash(i) {
   const o = i.options;
   return {
@@ -258,7 +254,6 @@ function fromSlash(i) {
   };
 }
 
-// message commands: "<prefix>whitelist user add @x" etc. loose parsing, works fine
 function fromMessage(msg, name, args) {
   const users = [...msg.mentions.users.values()];
   const roles = [...msg.mentions.roles.values()];

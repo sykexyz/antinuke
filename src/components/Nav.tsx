@@ -5,44 +5,64 @@ import { SpiderLily } from "./SpiderLily";
 
 function ThemeToggle() {
   const [dark, setDark] = useState(false);
+
   useEffect(() => {
-    const d = localStorage.getItem("rize-theme") === "dark";
-    setDark(d);
-    document.documentElement.classList.toggle("dark", d);
+    const isDark = localStorage.getItem("rize-theme") === "dark";
+    setDark(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
   }, []);
-  const flip = () => {
-    const d = !dark;
-    setDark(d);
-    document.documentElement.classList.toggle("dark", d);
-    localStorage.setItem("rize-theme", d ? "dark" : "light");
+
+  const toggle = () => {
+    const nextDark = !dark;
+    setDark(nextDark);
+    document.documentElement.classList.toggle("dark", nextDark);
+    localStorage.setItem("rize-theme", nextDark ? "dark" : "light");
   };
+
   return (
-    <button onClick={flip} aria-label="Switch theme" className="glass grid h-9 w-9 place-items-center rounded-full text-blood transition hover:scale-105">
+    <button
+      onClick={toggle}
+      aria-label="Switch theme"
+      className="glass grid h-9 w-9 place-items-center rounded-full text-blood transition hover:scale-105 active:scale-95"
+    >
       {dark ? <Sun size={16} /> : <Moon size={16} />}
     </button>
   );
 }
 
-const item = "flex items-center gap-2 rounded-full px-4 py-2 font-display text-xs uppercase tracking-[0.2em] transition hover:bg-accent";
+const navItemClass =
+  "flex items-center gap-2 rounded-full px-4 py-2 font-display text-xs uppercase tracking-[0.2em] transition hover:bg-accent/70";
 
 export function Nav() {
   return (
-    <header className="sticky top-0 z-50 px-4 pt-4">
-      <nav className="glass mx-auto flex max-w-5xl items-center justify-between rounded-full px-2 py-1.5">
-        <div className="flex items-center gap-1">
-          <Link to="/" className={item} activeProps={{ className: "bg-accent text-blood" }} activeOptions={{ exact: true }}>
+    <header className="sticky top-0 z-40 px-4 pt-4">
+      <nav className="glass mx-auto flex max-w-4xl items-center justify-between rounded-full px-3 py-2">
+        <div className="flex items-center gap-2">
+          {/* 1. Application: animated red spider lily */}
+          <Link
+            to="/"
+            className={navItemClass}
+            activeProps={{ className: "bg-accent/80 text-blood" }}
+            activeOptions={{ exact: true }}
+          >
             <SpiderLily size={22} className="lily-sway" />
-            <span className="hidden sm:inline">Application</span>
+            <span className="font-semibold">Application</span>
           </Link>
-          <Link to="/commands" className={item} activeProps={{ className: "bg-accent text-blood" }}>
-            <span className="font-mono text-sm font-bold">/</span>
-            <span>Commands</span>
-          </Link>
-          <Link to="/rizesec" className={item} activeProps={{ className: "bg-accent text-blood" }}>
-            <span className="text-shift font-mono text-sm font-bold">&lt; \ &gt;</span>
-            <span>RizeSec</span>
+
+          {/* 2. RizeSec: < \ > icon with shifting reflective color white -> red */}
+          <Link
+            to="/rizesec"
+            className={navItemClass}
+            activeProps={{ className: "bg-accent/80 text-blood" }}
+          >
+            <span className="text-shift font-mono text-sm font-bold tracking-normal">
+              &lt; \ &gt;
+            </span>
+            <span className="font-semibold">RizeSec</span>
           </Link>
         </div>
+
+        {/* Theme toggle (sun/moon) on the right */}
         <ThemeToggle />
       </nav>
     </header>

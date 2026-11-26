@@ -24,6 +24,21 @@ function hit(k, windowMs) {
 }
 setInterval(() => buckets.clear(), 10 * 60_000).unref();
 
+// duplicate content detection for copy-paste spam and raid bots
+const recentContents = new Map();
+function isDuplicateSpam(gid, authorId, text, windowMs = 15000, maxDuplicates = 3) {
+  const clean = (text || '').trim().toLowerCase();
+  if (clean.length < 3) return false;
+  const k = `${gid}:${authorId}`;
+  const now = Date.now();
+  const arr = (recentContents.get(k) || []).filter((item) => now - item.at < windowMs);
+  arr.push({ text: clean, at: now });
+  recentContents.set(k, arr);
+  const count = arr.filter((item) => item.text === clean).length;
+  return count >= maxDuplicates;
+}
+setInterval(() => recentContents.clear(), 10 * 60_000).unref();
+
 // recent mention messages for ghost ping checks
 const pings = new Map();
 
@@ -38,21 +53,137 @@ async function executor(guild, type, targetId) {
   }
 }
 
+// Purge messages sent by a specific user or bot in a channel
+async function purgeUserMessages(channel, authorId, limit = 50) {
+  if (!channel || !channel.messages) return;
+  try {
+    const fetched = await channel.messages.fetch({ limit }).catch(() => null);
+    if (!fetched || fetched.size === 0) return;
+    const twoWeeks = 14 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    const userMsgs = fetched.filter((m) => m.author?.id === authorId && now - m.createdTimestamp < twoWeeks);
+    if (userMsgs.size === 0) return;
+    if (userMsgs.size === 1) {
+      await userMsgs.first().delete().catch(() => {});
+    } else if (channel.bulkDelete) {
+      await channel.bulkDelete(userMsgs, true).catch(async () => {
+        for (const m of userMsgs.values()) {
+          await m.delete().catch(() => {});
+        }
+      });
+    } else {
+      for (const m of userMsgs.values()) {
+        await m.delete().catch(() => {});
+      }
+    }
+  } catch (e) {
+    console.error('[purgeUserMessages]', e.message);
+  }
+}
+
+// Delete thread announcement messages ("user started a thread: ...") in the parent channel
+async function deleteThreadAnnouncements(parentChannel, threadId, threadName) {
+  if (!parentChannel || !parentChannel.messages) return;
+  try {
+    const msgs = await parentChannel.messages.fetch({ limit: 25 }).catch(() => null);
+    if (!msgs || msgs.size === 0) return;
+    const tName = (threadName || '').toLowerCase();
+    for (const m of msgs.values()) {
+      const isThreadMsg =
+        m.type === 18 || // MessageType.ThreadCreated
+        m.type === 21 || // MessageType.ThreadStarterMessage
+        m.id === threadId ||
+        (m.thread && m.thread.id === threadId) ||
+        (tName && m.content && m.content.toLowerCase().includes(tName));
+      if (isThreadMsg) {
+        await m.delete().catch(() => {});
+      }
+    }
+  } catch (e) {
+    console.error('[deleteThreadAnnouncements]', e.message);
+  }
+}
+
 async function onMessage(msg) {
-  if (!msg.guild || !msg.member) return;
-  tracker.message(msg);
+  if (!msg.guild || !msg.author) return;
   if (msg.author.id === msg.client.user.id) return;
-  if (isBypassed(msg.member)) return;
 
   const gid = msg.guild.id;
+
+  // 1. Thread interception if anti-thread is active
+  if (on(gid, 'thread')) {
+    // Intercept thread created announcement message in the parent channel
+    if (msg.type === 18 || msg.type === 21) {
+      const authorMember = msg.member || (await msg.guild.members.fetch(msg.author.id).catch(() => null));
+      if (!authorMember || !isBypassed(authorMember)) {
+        await msg.delete().catch(() => {});
+        if (msg.thread) await msg.thread.delete('rize anti thread').catch(() => {});
+        if (authorMember) await punish(authorMember, 'thread', 'created a thread');
+        return;
+      }
+    }
+    // Intercept messages inside unauthorized active threads
+    if (msg.channel.isThread?.()) {
+      const authorMember = msg.member || (await msg.guild.members.fetch(msg.author.id).catch(() => null));
+      if (!authorMember || !isBypassed(authorMember)) {
+        await msg.delete().catch(() => {});
+        await msg.channel.delete('rize anti thread').catch(() => {});
+        if (authorMember) await punish(authorMember, 'thread', 'active inside thread');
+        return;
+      }
+    }
+  }
+
+  // Ensure member object is populated
+  if (!msg.member && msg.author) {
+    msg.member = await msg.guild.members.fetch(msg.author.id).catch(() => null);
+  }
+
+  tracker.message(msg);
+
+  if (msg.member && isBypassed(msg.member)) return;
+
   const text = msg.content || '';
+
+  // 2. Intercept unwhitelisted bots immediately if anti-botadd is active
+  if (msg.author.bot) {
+    const isWlBot = store.guild(gid).wl.bots.includes(msg.author.id);
+    if (!isWlBot && on(gid, 'botadd')) {
+      await msg.delete().catch(() => {});
+      await purgeUserMessages(msg.channel, msg.author.id, 50).catch(() => {});
+      if (msg.member) {
+        await msg.member.ban({ reason: 'rize anti botadd: unwhitelisted bot active', deleteMessageSeconds: 604800 }).catch(async () => {
+          await msg.member.kick('rize anti botadd: unwhitelisted bot active').catch(() => {});
+        });
+      } else {
+        await msg.guild.members.ban(msg.author.id, { reason: 'rize anti botadd', deleteMessageSeconds: 604800 }).catch(() => {});
+      }
+      log(msg.guild, 'anti botadd', `Intercepted & banned unwhitelisted bot: ${msg.author.tag} (\`${msg.author.id}\`)`);
+      return;
+    }
+  }
+
   const kill = async (rule, detail) => {
     await msg.delete().catch(() => {});
-    return punish(msg.member, rule, detail);
+    await purgeUserMessages(msg.channel, msg.author.id, 50).catch(() => {});
+    if (msg.member) {
+      return punish(msg.member, rule, detail);
+    } else {
+      return msg.guild.members.ban(msg.author.id, { reason: `rize anti ${rule}`, deleteMessageSeconds: 604800 }).catch(() => {});
+    }
   };
 
-  if (on(gid, 'spam') && hit(`spam:${gid}:${msg.author.id}`, 5000) >= 6) return kill('spam', '6+ messages in 5s');
+  // 3. Fast Anti-Spam: Rate bursts + Duplicate copy-paste flood
+  if (on(gid, 'spam')) {
+    const rateLimit = msg.author.bot ? 3 : 5;
+    const isRate = hit(`spam:${gid}:${msg.author.id}`, 4000) >= rateLimit;
+    const isDup = isDuplicateSpam(gid, msg.author.id, text, 15000, msg.author.bot ? 2 : 3);
+    if (isRate || isDup) {
+      return kill('spam', isDup ? 'duplicate copy-paste spam' : 'rapid message flood');
+    }
+  }
 
+  // 4. Anti-Link
   if (on(gid, 'link')) {
     if (INVITE.test(text)) return kill('link', 'invite link');
     const lower = text.toLowerCase();
@@ -60,16 +191,22 @@ async function onMessage(msg) {
     if (bad) return kill('link', `flagged domain ${bad}`);
   }
 
+  // 5. Anti-Mention
   const mentions = msg.mentions.users.size + msg.mentions.roles.size + (msg.mentions.everyone ? 5 : 0);
   if (on(gid, 'mention') && mentions >= 5) return kill('mention', `${mentions} mentions in one message`);
 
+  // 6. Anti-Caps (Caps threshold: >= 10 letters, > 70% uppercase)
   if (on(gid, 'caps')) {
     const letters = text.replace(/[^a-z]/gi, '');
-    if (letters.length >= 12 && letters.replace(/[^A-Z]/g, '').length / letters.length > 0.75) return kill('caps', 'mostly caps');
+    if (letters.length >= 10 && letters.replace(/[^A-Z]/g, '').length / letters.length > 0.70) {
+      return kill('caps', 'mostly caps');
+    }
   }
 
+  // 7. Anti-Zalgo
   if (on(gid, 'zalgo') && (text.match(ZALGO) || []).length >= 10) return kill('zalgo', 'zalgo text');
 
+  // 8. Anti-Emoji
   if (on(gid, 'emoji') && (text.match(EMOJI_RE) || []).length >= 10) return kill('emoji', 'emoji flood');
 
   if (mentions > 0) pings.set(msg.id, { at: Date.now(), author: msg.author.id, count: mentions });
@@ -102,9 +239,11 @@ async function onJoin(member) {
   if (member.user.bot) {
     if (!on(g.id, 'botadd') || store.guild(g.id).wl.bots.includes(member.id)) return;
     const who = await executor(g, AuditLogEvent.BotAdd, member.id);
-    await member.kick('rize anti botadd').catch(() => {});
+    await member.ban({ reason: 'rize anti botadd: unwhitelisted bot joined', deleteMessageSeconds: 604800 }).catch(async () => {
+      await member.kick('rize anti botadd').catch(() => {});
+    });
     if (who && !isBypassed(who)) punish(who, 'botadd', `added ${member.user.tag}`);
-    else log(g, 'anti botadd', `kicked ${member.user.tag}, not whitelisted`);
+    else log(g, 'anti botadd', `banned unwhitelisted bot ${member.user.tag}`);
     return;
   }
 
@@ -131,16 +270,35 @@ async function nukeCheck(guild, type, targetId, what) {
   if (hit(`nuke:${guild.id}:${who.id}`, 15_000) >= 3) punish(who, 'nuke', `mass ${what} deletes`);
 }
 
-async function onThread(thread, isNew) {
-  if (!isNew || !thread.guild) return;
-  const owner = await thread.guild.members.fetch(thread.ownerId).catch(() => null);
-  if (!owner) return;
+async function onThread(thread) {
+  if (!thread || !thread.guild) return;
+  const gid = thread.guild.id;
+  const ownerId = thread.ownerId;
+  const owner = ownerId ? await thread.guild.members.fetch(ownerId).catch(() => null) : null;
+  const parent = thread.parent || (thread.parentId ? await thread.guild.channels.fetch(thread.parentId).catch(() => null) : null);
+
   // xtimeout'd people never get threads, whitelist or not
-  if (isX(thread.guild.id, owner.id)) return thread.delete('rize xtimeout').catch(() => {});
-  tracker.get(thread.guild.id, owner.id).threads++;
-  if (on(thread.guild.id, 'thread') && !isBypassed(owner)) {
-    await thread.delete('rize anti thread').catch(() => {});
-    log(thread.guild, 'anti thread', `deleted a thread from ${owner}. threads are off here.`);
+  if (ownerId && isX(gid, ownerId)) {
+    await thread.delete('rize xtimeout').catch(() => {});
+    if (parent) await deleteThreadAnnouncements(parent, thread.id, thread.name).catch(() => {});
+    return;
+  }
+
+  if (owner) tracker.get(gid, owner.id).threads++;
+
+  if (on(gid, 'thread')) {
+    const bypassed = owner && isBypassed(owner);
+    if (!bypassed) {
+      await thread.delete('rize anti thread').catch(() => {});
+      if (parent) {
+        await deleteThreadAnnouncements(parent, thread.id, thread.name).catch(() => {});
+      }
+      if (owner) {
+        await punish(owner, 'thread', `created thread #${thread.name}`);
+      } else {
+        log(thread.guild, 'anti thread', `deleted thread #${thread.name}. threads are off here.`);
+      }
+    }
   }
 }
 
@@ -176,7 +334,7 @@ function wire(client) {
   client.on('channelDelete', (c) => c.guild && nukeCheck(c.guild, AuditLogEvent.ChannelDelete, c.id, 'channel').catch(console.error));
   client.on('roleDelete', (r) => nukeCheck(r.guild, AuditLogEvent.RoleDelete, r.id, 'role').catch(console.error));
   client.on('guildBanAdd', (b) => nukeCheck(b.guild, AuditLogEvent.MemberBanAdd, b.user.id, 'ban').catch(console.error));
-  client.on('threadCreate', (t, n) => onThread(t, n).catch(console.error));
+  client.on('threadCreate', (t) => onThread(t).catch(console.error));
   client.on('webhooksUpdate', (c) => onWebhooks(c).catch(console.error));
   client.on('guildUpdate', (a, b) => onGuildUpdate(a, b).catch(console.error));
   client.on('voiceStateUpdate', onVoice);

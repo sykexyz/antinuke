@@ -27,19 +27,42 @@ function clearX(gid, uid) {
 async function punish(member, rule, detail = '') {
   if (!member || member.id === member.guild.ownerId) return;
   const cfg = store.guild(member.guild.id);
-  const how = cfg.anti[rule]?.punish || 'xtimeout';
+  let how = cfg.anti[rule]?.punish || 'xtimeout';
   tracker.violation(member.guild.id, member.id, rule);
+
+  // Discord API does not permit timing out bots (error 400: Cannot timeout a bot).
+  // External spam/raid bots must be banned (or kicked) immediately to halt floods.
+  if (member.user?.bot && how === 'xtimeout') {
+    how = 'ban';
+  }
 
   let done = how;
   try {
-    if (how === 'ban') await member.ban({ reason: `rize anti ${rule}` });
-    else if (how === 'kick') await member.kick(`rize anti ${rule}`);
-    else await xtimeout(member, `anti ${rule}`);
+    if (how === 'ban') {
+      await member.ban({ reason: `rize anti ${rule}`, deleteMessageSeconds: 604800 });
+    } else if (how === 'kick') {
+      await member.kick(`rize anti ${rule}`);
+    } else {
+      await xtimeout(member, `anti ${rule}`);
+    }
   } catch (e) {
-    done = `failed (${e.message})`;
+    if (how === 'xtimeout') {
+      try {
+        await member.kick(`rize anti ${rule} (timeout fallback)`);
+        done = 'kick (timeout failed)';
+      } catch (e2) {
+        done = `failed (${e.message}; kick: ${e2.message})`;
+      }
+    } else {
+      done = `failed (${e.message})`;
+    }
   }
 
-  log(member.guild, `anti ${rule} triggered`, `**user** ${member} (\`${member.id}\`)\n**punishment** ${done}${detail ? `\n**details** ${detail}` : ''}`);
+  log(
+    member.guild,
+    `anti ${rule} triggered`,
+    `**user** ${member} (\`${member.id}\`)\n**punishment** ${done}${detail ? `\n**details** ${detail}` : ''}`
+  );
 }
 
 // re-apply timeouts on boot, and expire old ones

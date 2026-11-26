@@ -1,6 +1,6 @@
 const { ChannelType, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
 const store = require('./store');
-const { RED, GIF } = require('./util');
+const { RED, GIF, EMOJI_SHIELD, EMOJI_BELL } = require('./util');
 
 const NAME = 'rize-logs';
 
@@ -24,7 +24,12 @@ async function ensureLogChannel(guild, { welcome = true } = {}) {
   if (cfg.wl.role) overwrites.push({ id: cfg.wl.role, allow: [PermissionFlagsBits.ViewChannel] });
 
   try {
-    ch = await guild.channels.create({ name: NAME, type: ChannelType.GuildText, permissionOverwrites: overwrites, reason: 'rize log channel' });
+    ch = await guild.channels.create({
+      name: NAME,
+      type: ChannelType.GuildText,
+      permissionOverwrites: overwrites,
+      reason: 'rize log channel',
+    });
   } catch (e) {
     console.warn(`[logs] couldn't make channel in ${guild.name}:`, e.message);
     return null;
@@ -45,28 +50,33 @@ async function syncLogAccess(guild) {
 function sendWelcome(ch) {
   const e = new EmbedBuilder()
     .setColor(RED)
-    .setTitle('hi thanks for trusting me, type /help')
+    .setTitle(`${EMOJI_SHIELD} Rize Bot is now active`)
     .setThumbnail(ch.client.user.displayAvatarURL({ size: 256 }))
     .setDescription(
       [
-        "I'm Rize. I watch the people in this server, not just the server itself. Messages, joins, voice channels, threads, webhooks, role and channel changes. If someone starts acting up, I catch it and deal with it the way you told me to.",
+        "I'm Rize. I protect this server against spam, raids, nukes, and unwanted bots. Messages, member joins, voice channels, threads, and role/channel changes are monitored in real time.",
         '',
-        '**What I need**',
-        'Manage Messages, Manage Channels, Moderate Members, Kick Members, Ban Members and View Audit Log. Put my role above anyone I should be able to punish. I can only touch people below me.',
-        '',
-        '**Why it\'s safe**',
-        "Your config stays with the bot. Nothing gets sold, nothing gets sent to outside services. I don't read DMs and I don't keep message content, only counts.",
+        '**Recommended Setup**',
+        '• Move my role above any roles I need to moderate in Server Settings.',
+        '• Use `/antinuke stats` to view and customize security modules.',
+        '• Use `/whitelist role` to grant server managers access to bot settings.',
+        '• Use `/help` to view all available commands.',
       ].join('\n')
     )
     .setImage(GIF)
-    .setFooter({ text: 'Rize • protection done right' });
+    .setFooter({ text: 'RizeSec • Server Protection', iconURL: GIF });
   return ch.send({ embeds: [e] });
 }
 
 async function log(guild, title, desc, color = RED) {
   const ch = await ensureLogChannel(guild, { welcome: true });
   if (!ch) return;
-  const e = new EmbedBuilder().setColor(color).setTitle(title).setDescription(desc).setTimestamp().setFooter({ text: 'Rize • protection done right' });
+  const e = new EmbedBuilder()
+    .setColor(color)
+    .setTitle(`${EMOJI_BELL} ${title}`)
+    .setDescription(desc)
+    .setTimestamp()
+    .setFooter({ text: 'RizeSec • Server Protection', iconURL: GIF });
   ch.send({ embeds: [e] }).catch(() => {});
 }
 

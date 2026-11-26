@@ -1,21 +1,27 @@
 const { PermissionFlagsBits } = require('discord.js');
 const store = require('./store');
 
+// Custom emojis provided by user
 const EMOJI = '<:rize:1574973435950538943>';
+const EMOJI_SHIELD = '<:rize_shield:1574987772417282228>';
+const EMOJI_ON = '<:rize_on:1575455399598104699>';
+const EMOJI_OFF = '<:rize_off:1575455894601343057>';
+const EMOJI_RAID = '<:rize_raid:1575456277625045094>';
+const EMOJI_BELL = '<:rize_bell:1575456544118800384>';
+const EMOJI_STATS = '<:rize_stats:1575456922847674520>';
+const EMOJI_GEAR = '<:rize_gear:1575457093937537144>';
+
 const STICKER_ON = '1574987768696799352';
 const STICKER_OFF = '1574987772417282228';
 const APP_ID = '1574970846311620608';
 const RED = 0xb3001b;
 const GIF = 'https://file.garden/aahuG_hIDGRlXD24/b189922eab130325a3995bfa1a3021eb.gif';
 
-// stickers don't render inline in embeds, so we drop them in emoji-style
-// (discord resolves these when the sticker id is also uploaded as an emoji, otherwise it's still a clear marker)
-// Sticker IDs cannot be rendered inline in embeds; use reliable status glyphs here.
-const flag = (on) => (on ? '🔴' : '⚪');
+const flag = (on) => (on ? EMOJI_ON : EMOJI_OFF);
 
 const topPos = (member) => member?.roles?.highest?.position ?? 0;
 
-// the whole authority model. owner > whitelist role > anyone above the bot
+// authority model: owner > whitelist role > anyone above the bot
 function canConfigure(member) {
   if (!member) return false;
   const g = member.guild;
@@ -46,4 +52,25 @@ function isBypassed(member) {
 
 const pad = (n, w = 4) => String(n).padStart(w, '0');
 
-module.exports = { EMOJI, STICKER_ON, STICKER_OFF, APP_ID, RED, GIF, flag, topPos, canConfigure, canPunish, isBypassed, pad, PermissionFlagsBits };
+module.exports = {
+  EMOJI,
+  EMOJI_SHIELD,
+  EMOJI_ON,
+  EMOJI_OFF,
+  EMOJI_RAID,
+  EMOJI_BELL,
+  EMOJI_STATS,
+  EMOJI_GEAR,
+  STICKER_ON,
+  STICKER_OFF,
+  APP_ID,
+  RED,
+  GIF,
+  flag,
+  topPos,
+  canConfigure,
+  canPunish,
+  isBypassed,
+  pad,
+  PermissionFlagsBits,
+};

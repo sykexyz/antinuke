@@ -2,7 +2,14 @@
   {
     "options": [],
     "name": "help",
-    "description": "Interactive Rize defense command console",
+    "description": "View Rize Bot commands and help menu",
+    "dm_permission": false,
+    "type": 1
+  },
+  {
+    "options": [],
+    "name": "commands",
+    "description": "View Rize Bot commands and help menu",
     "dm_permission": false,
     "type": 1
   },
@@ -103,12 +110,12 @@
           }
         ],
         "name": "state",
-        "description": "Armed state",
+        "description": "Status",
         "required": true
       }
     ],
     "name": "anti",
-    "description": "Toggle a protection module",
+    "description": "Toggle a protection module on or off",
     "dm_permission": false,
     "type": 1
   },
@@ -191,12 +198,12 @@
           }
         ],
         "name": "type",
-        "description": "Sanction action",
+        "description": "Action",
         "required": true
       }
     ],
     "name": "punishment",
-    "description": "Configure automated sanction per rule",
+    "description": "Configure punishment action for a module",
     "dm_permission": false,
     "type": 1
   },
@@ -205,12 +212,12 @@
       {
         "type": 1,
         "name": "stats",
-        "description": "Display armed protection status",
+        "description": "Display active protection modules",
         "options": []
       }
     ],
     "name": "antinuke",
-    "description": "Inspect defense module status",
+    "description": "Inspect server protection status",
     "dm_permission": false,
     "type": 1
   },
@@ -219,7 +226,7 @@
       {
         "type": 2,
         "name": "role",
-        "description": "Whitelist management role",
+        "description": "Manage whitelist role",
         "options": [
           {
             "type": 1,
@@ -245,7 +252,7 @@
       {
         "type": 2,
         "name": "bot",
-        "description": "Trusted bot integrations",
+        "description": "Manage trusted bots",
         "options": [
           {
             "type": 1,
@@ -278,7 +285,7 @@
       {
         "type": 2,
         "name": "user",
-        "description": "Trusted users",
+        "description": "Manage trusted users",
         "options": [
           {
             "type": 1,
@@ -316,7 +323,7 @@
       }
     ],
     "name": "whitelist",
-    "description": "Manage trusted roles, bots and users",
+    "description": "Manage trusted roles, bots, and users",
     "dm_permission": false,
     "type": 1
   },
@@ -376,7 +383,7 @@
       }
     ],
     "name": "xtimeout",
-    "description": "5h timeout, voice lock and thread suppression",
+    "description": "Apply 5-hour timeout, voice kick, and thread block",
     "dm_permission": false,
     "type": 1
   },
@@ -390,7 +397,7 @@
       }
     ],
     "name": "unpunish",
-    "description": "Revoke an active X-Timeout sanction",
+    "description": "Remove an active X-Timeout from a member",
     "dm_permission": false,
     "type": 1
   },
@@ -404,7 +411,7 @@
       }
     ],
     "name": "userinfo",
-    "description": "View a member security dossier",
+    "description": "View member account details and status",
     "dm_permission": false,
     "type": 1
   },
@@ -418,21 +425,21 @@
       }
     ],
     "name": "monitor",
-    "description": "View member activity telemetry",
+    "description": "View member message speed and activity",
     "dm_permission": false,
     "type": 1
   },
   {
     "options": [],
     "name": "setup",
-    "description": "Create or repair private #rize-logs",
+    "description": "Create or verify private #rize-logs",
     "dm_permission": false,
     "type": 1
   },
   {
     "options": [],
     "name": "badges",
-    "description": "View badge eligibility and official claim steps",
+    "description": "View bot status and verification info",
     "dm_permission": false,
     "type": 1
   },
